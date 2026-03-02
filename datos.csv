@@ -60,7 +60,7 @@ Nombre,SAP ID,Certificacion,Activity Type,Fecha_vencimiento,Estado,Comentarios
 "Rodil, Santiago",20014070,IQTQAC20-GCU COURSE - Thread inspection - Couplings,Course,,Pending,
 "Robledo, Paulo Eloy",60087038,IHSHS012-GAU Light lift Audit,Practical Test,2026-01-01,Overdue,
 "Rivas, Damian Ivan",60076272,IHSHS012-GAU Light lift Audit,Practical Test,2025-12-06,Overdue,
-"Riaño, Diego Gabriel",20012035,00409760-OJT Auxiliary,On the Job Training,,Pending,
+"RiaÃ±o, Diego Gabriel",20012035,00409760-OJT Auxiliary,On the Job Training,,Pending,
 "Reggini, Eduardo Saul",60088793,IHSHS048-GCU Working at Heights Refresh,Course,2026-02-19,Overdue,
 "Reggini, Eduardo Saul",60088793,IHSHS062-GAU Work at Heights Practical Test,Practical Test,2026-02-19,Overdue,
 "Portillo, Facundo Adrian",60084345,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,2025-06-13,Overdue,
@@ -97,9 +97,9 @@ Nombre,SAP ID,Certificacion,Activity Type,Fecha_vencimiento,Estado,Comentarios
 "Ochoa, Roberto Javier",20015986,IQTTS223-GCE-C Flux Leakage testing L2 Certification,Certification,2026-06-02,Pending,
 "Ocampo, Osvaldo Luciano",20010576,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,2026-02-05,Overdue,
 "Ocampo, Osvaldo Luciano",20010576,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,2026-02-05,Overdue,
-"Nuñez, Adrian Esteban",20013181,70552053 Flux Leakage testing L2 - Initial Avg. Test,Knowledge Test,2015-03-09,Pending,
-"Nuñez, Adrian Esteban",20013181,IQTTS062-GCU Flux Leakage testing L2 ? Practical Test,Knowledge Test,2015-03-09,Overdue,
-"Nuñez, Adrian Esteban",20013181,IQTTS223-GCE-C Flux Leakage testing L2 Certification,Certification,2015-03-09,Pending,
+"NuÃ±ez, Adrian Esteban",20013181,70552053 Flux Leakage testing L2 - Initial Avg. Test,Knowledge Test,2015-03-09,Pending,
+"NuÃ±ez, Adrian Esteban",20013181,IQTTS062-GCU Flux Leakage testing L2 ? Practical Test,Knowledge Test,2015-03-09,Overdue,
+"NuÃ±ez, Adrian Esteban",20013181,IQTTS223-GCE-C Flux Leakage testing L2 Certification,Certification,2015-03-09,Pending,
 "Mosqueira, Lucas Javier",20017696,IHSHS012-GAU Light lift Audit,Practical Test,2020-09-19,Overdue,
 "Mosqueira, Lucas Javier",20017696,IHSHS031-GCU Light Lift Regional,Course,2020-09-19,Pending,
 "Morel, Sergio",20011919,IHSHS002-GAU Pipe Cabin Crane - Audit,Practical Test,,Pending,
@@ -127,10 +127,10 @@ Nombre,SAP ID,Certificacion,Activity Type,Fecha_vencimiento,Estado,Comentarios
 "Martin, Leonardo Raul",20016306,IHSHS126-GCE Lockout Tagout ? Certification,Certification,2025-12-12,Overdue,
 "Marquez, Marcelo Javier",20012209,IPRXX008-GCU Combustion process theory,Course,,Pending,
 "Marchi, Gustavo Alejandro",20011792,IHSHS002-GAU Pipe Cabin Crane - Audit,Practical Test,2020-09-27,Overdue,
-"Marañon Quinodoz, Tobias",60080334,00410003-OJT Visual Inspector L2 - Finishing (3),On the Job Training,,Pending,
-"Marañon Quinodoz, Tobias",60080334,IHSHS012-GAU Light lift Audit,Practical Test,,Pending,
-"Marañon Quinodoz, Tobias",60080334,IHSHS012-OJT Light lift OJT,On the Job Training,,Pending,
-"Marañon Quinodoz, Tobias",60080334,IHSHS031-GCU Light Lift Regional,Course,,Pending,
+"MaraÃ±on Quinodoz, Tobias",60080334,00410003-OJT Visual Inspector L2 - Finishing (3),On the Job Training,,Pending,
+"MaraÃ±on Quinodoz, Tobias",60080334,IHSHS012-GAU Light lift Audit,Practical Test,,Pending,
+"MaraÃ±on Quinodoz, Tobias",60080334,IHSHS012-OJT Light lift OJT,On the Job Training,,Pending,
+"MaraÃ±on Quinodoz, Tobias",60080334,IHSHS031-GCU Light Lift Regional,Course,,Pending,
 "Mansilla, Mauricio Rufino",20016341,IHSHS051-GCU Lockout Tagout Refresh,Course,2025-12-12,Overdue,
 "Mansilla, Mauricio Rufino",20016341,IHSHS126-GCE Lockout Tagout ? Certification,Certification,2025-12-12,Overdue,
 "Mallada, Martin Daniel",60101370,00409764-OJT Auxiliary,On the Job Training,,Pending,
@@ -144,11 +144,11 @@ Nombre,SAP ID,Certificacion,Activity Type,Fecha_vencimiento,Estado,Comentarios
 "Maciel, Gabriel Osvaldo",20017326,IHSHS126-GCE Lockout Tagout ? Certification,Certification,2025-11-08,Overdue,
 "Lynn, Maximiliano Gaston",20016305,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,2026-02-22,Overdue,
 "Lujan, Oscar Anibal",20013378,00409749-OJT Special Vehicles Operator,On the Job Training,,Pending,
-"Lopez, Joaquin Tobías",60101801,00409981-OJT Industrial Services Electromechanic L3,On the Job Training,,Pending,
-"Lopez, Joaquin Tobías",60101801,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,,Pending,
-"Lopez, Joaquin Tobías",60101801,IHSHS001-OJT Remote Control Cranes - OJT,On the Job Training,,Pending,
-"Lopez, Joaquin Tobías",60101801,IHSHS035-OJT Work at Heights OJT,On the Job Training,2028-06-06,Pending,
-"Lopez, Joaquin Tobías",60101801,IHSHS062-GAU Work at Heights Practical Test,Practical Test,2028-06-06,Pending,
+"Lopez, Joaquin TobÃ­as",60101801,00409981-OJT Industrial Services Electromechanic L3,On the Job Training,,Pending,
+"Lopez, Joaquin TobÃ­as",60101801,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,,Pending,
+"Lopez, Joaquin TobÃ­as",60101801,IHSHS001-OJT Remote Control Cranes - OJT,On the Job Training,,Pending,
+"Lopez, Joaquin TobÃ­as",60101801,IHSHS035-OJT Work at Heights OJT,On the Job Training,2028-06-06,Pending,
+"Lopez, Joaquin TobÃ­as",60101801,IHSHS062-GAU Work at Heights Practical Test,Practical Test,2028-06-06,Pending,
 "Leiss, Gustavo Martin",20012798,IHSHS048-GCU Working at Heights Refresh,Course,2025-11-15,Overdue,
 "Leiss, Gustavo Martin",20012798,IHSHS062-GAU Work at Heights Practical Test,Practical Test,2025-11-15,Overdue,
 "Lares, Tomas Leonardo",60087663,00410348-OJT Oxycut Operator,On the Job Training,,Pending,
@@ -201,7 +201,7 @@ Nombre,SAP ID,Certificacion,Activity Type,Fecha_vencimiento,Estado,Comentarios
 "Ferreyra, Mauro Fabricio",20016996,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,2026-02-16,Overdue,
 "Fernandez Ballester, Maximiliano Nestor",20012502,00409742-OJT Hot Straightening & Sizing Operator,On the Job Training,,Pending,
 "Fernandez Ballester, Maximiliano Nestor",20012502,IPRXX008-GCU Combustion process theory,Course,,Pending,
-"Fariña, Rosana Micaela",60088055,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,2026-01-08,Overdue,
+"FariÃ±a, Rosana Micaela",60088055,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,2026-01-08,Overdue,
 "Dovidonis, Ricardo Bronislao",20014051,IHSHS002-GAU Pipe Cabin Crane - Audit,Practical Test,,Pending,
 "Diaz, Ramon Alejandro",60052771,IHSHS048-GCU Working at Heights Refresh,Course,2028-11-13,Overdue,
 "Diaz, Leandro Federico",60079934,IHSHS048-GCU Working at Heights Refresh,Course,2026-02-06,Overdue,
@@ -216,7 +216,7 @@ Nombre,SAP ID,Certificacion,Activity Type,Fecha_vencimiento,Estado,Comentarios
 "De Col, Alex Norberto",20013058,IHSHS002-OJT Pipe Cabin Crane - OJT,On the Job Training,,Pending,
 "De Bagge, Miguel Angel",20014753,IHSHS051-GCU Lockout Tagout Refresh,Course,2025-12-12,Overdue,
 "De Bagge, Miguel Angel",20014753,IHSHS126-GCE Lockout Tagout ? Certification,Certification,2025-12-12,Pending,
-"Dañil, Jose Luis",20013057,IHSHS002-GAU Pipe Cabin Crane - Audit,Practical Test,,Pending,
+"DaÃ±il, Jose Luis",20013057,IHSHS002-GAU Pipe Cabin Crane - Audit,Practical Test,,Pending,
 "D'Acosta, Dardo Angel Lujan",20014620,00409760-OJT Auxiliary,On the Job Training,,Pending,
 "D Agostino, Jorge Gabriel",20017907,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,2021-10-10,Overdue,
 "Cura, Hernando Andres",20014828,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,2020-09-22,Overdue,
@@ -265,14 +265,14 @@ Nombre,SAP ID,Certificacion,Activity Type,Fecha_vencimiento,Estado,Comentarios
 "Bouder, Claudio Jose",20015257,IHSHS062-GAU Work at Heights Practical Test,Practical Test,2024-12-02,Overdue,Baja medica
 "Bouder, Claudio Jose",20015257,IHSHS126-GCE Lockout Tagout ? Certification,Certification,2024-12-03,Overdue,Baja medica
 "Bouder, Claudio Jose",20015257,IHSHS126-GCE Lockout Tagout ? Certification,Certification,2024-12-03,Overdue,Baja medica
-"Bolaño, Jose Luis",60062723,00409778-OJT BMG Mechanic / Hydraulic (1),On the Job Training,,Pending,Baja medica
-"Bolaño, Jose Luis",60062723,IHSHS004-GCU Basic first aid and cardiopulmonary resuscitation,Course,,Pending,Baja medica
-"Bolaño, Jose Luis",60062723,IHSHS035-OJT Work at Heights OJT,On the Job Training,,Pending,Baja medica
-"Bolaño, Jose Luis",60062723,IHSHS047-GCU Work at Heights,Course,,Pending,Baja medica
-"Bolaño, Jose Luis",60062723,IHSHS048-GCU Working at Heights Refresh,Course,,Pending,Baja medica
-"Bolaño, Jose Luis",60062723,IHSHS049-GCU Confined Spaces,Course,,Pending,Baja medica
-"Bolaño, Jose Luis",60062723,IHSHS050-GCU Confined Spaces Refresh,Course,,Pending,Baja medica
-"Bolaño, Jose Luis",60062723,IHSHS062-GAU Work at Heights Practical Test,Practical Test,,Pending,Baja medica
+"BolaÃ±o, Jose Luis",60062723,00409778-OJT BMG Mechanic / Hydraulic (1),On the Job Training,,Pending,Baja medica
+"BolaÃ±o, Jose Luis",60062723,IHSHS004-GCU Basic first aid and cardiopulmonary resuscitation,Course,,Pending,Baja medica
+"BolaÃ±o, Jose Luis",60062723,IHSHS035-OJT Work at Heights OJT,On the Job Training,,Pending,Baja medica
+"BolaÃ±o, Jose Luis",60062723,IHSHS047-GCU Work at Heights,Course,,Pending,Baja medica
+"BolaÃ±o, Jose Luis",60062723,IHSHS048-GCU Working at Heights Refresh,Course,,Pending,Baja medica
+"BolaÃ±o, Jose Luis",60062723,IHSHS049-GCU Confined Spaces,Course,,Pending,Baja medica
+"BolaÃ±o, Jose Luis",60062723,IHSHS050-GCU Confined Spaces Refresh,Course,,Pending,Baja medica
+"BolaÃ±o, Jose Luis",60062723,IHSHS062-GAU Work at Heights Practical Test,Practical Test,,Pending,Baja medica
 "Beron, Micaela Ayelen",60085186,IHSHS012-GAU Light lift Audit,Practical Test,2025-12-22,Overdue,
 "Bentivoglio, Alejandro Javier",60101369,IHSHS005-GCU Safety in Maintenance,Course,,Pending,
 "Benitez, Enrique Ezequiel",60086717,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,2026-01-01,Overdue,
@@ -298,7 +298,7 @@ Nombre,SAP ID,Certificacion,Activity Type,Fecha_vencimiento,Estado,Comentarios
 "Albertarrio, Abril Ximena",60079712,IHSHS002-OJT Pipe Cabin Crane - OJT,On the Job Training,,Pending,
 "Agnese, Matias Gabriel",20014902,00410002-OJT Visual Inspector L1,On the Job Training,,Pending,
 "Agnese, Matias Gabriel",20014902,IPRFI002-GCU Bevel Inspection,Course,,Pending,
-"Acuña, Lucas Marcelo",60068669,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,2022-10-22,Overdue,
+"AcuÃ±a, Lucas Marcelo",60068669,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,2022-10-22,Overdue,
 "Acosta, Jorge Eduardo",20011778,IHSHS062-GAU Work at Heights Practical Test,Practical Test,2029-02-25,Overdue,Cargado
 "Abreu, Batista Valentin",60062313,IHSHS012-GAU Light lift Audit,Practical Test,2026-02-17,Overdue,
 "Abreu, Batista Valentin",60062313,IHSHS015-GAU Gantry Crane - Audit,Practical Test,2026-01-25,Overdue,
