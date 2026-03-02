@@ -102,10 +102,10 @@ with col5:
             use_container_width=True
         )
 
-    with col_btn2:
-        if st.button("Borrar filtros", use_container_width=True):
-            st.session_state.df_filtrado = df.copy()
-            st.experimental_rerun()
+ with col_btn2:
+    if st.button("Borrar filtros", use_container_width=True):
+        st.session_state.df_filtrado = df.copy()
+        st.rerun()
 
 # -------------------------
 # APLICAR FILTROS
@@ -128,3 +128,4 @@ if isinstance(filtro_fecha, tuple) and len(filtro_fecha) == 2:
     ]
 
 st.session_state.df_filtrado = df_filtrado
+
