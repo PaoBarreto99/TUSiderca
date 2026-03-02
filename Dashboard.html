@@ -1,12 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard de Certificaciones</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Verdana,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px}
+.container{max-width:1400px;margin:0 auto;background:white;border-radius:15px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}
+.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:30px;text-align:center}
+.header h1{font-size:2.5em;margin-bottom:10px}
+.header p{opacity:.9}
+.content{padding:30px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:40px}
+.stat-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:25px;border-radius:12px;text-align:center}
+.stat-card .number{font-size:2.5em;font-weight:bold}
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;margin-bottom:40px;justify-items:center;}
+.chart-container{background:#f8f9fa;padding:20px;border-radius:12px;width:100%;max-width:400px;text-align:center;}
+.chart-container canvas{max-height:220px !important;}
+.table-container{overflow-x:auto;background:#f8f9fa;padding:20px;border-radius:12px}
+table{width:100%;border-collapse:collapse;background:white}
+thead{background:#667eea;color:white}
+th,td{padding:12px;text-align:left;border-bottom:1px solid #eee}
+tbody tr:hover{background:#f5f5f5}
+.filter-input{width:100%;padding:5px;border-radius:5px;border:1px solid #ccc;font-size:.9em}
+.status-badge{padding:5px 10px;border-radius:20px;font-size:.8em;font-weight:bold;text-transform:uppercase}
+.status-Vigente{background:#d4edda;color:#155724}
+.status-Por\ Vencer{background:#fff3cd;color:#856404}
+.status-Vencida{background:#f8d7da;color:#721c24}
+</style>
+</head>
+
+<body>
+<div class="container">
+<div class="header">
+<h1>📋 Dashboard de Certificaciones</h1>
+<p>Gestión y seguimiento de certificaciones profesionales</p>
+</div>
+
+<div class="content">
+
+<div class="stats-grid">
+<div class="stat-card"><h3>Vigentes</h3><div class="number" id="vigentes">0</div></div>
+<div class="stat-card"><h3>Por Vencer</h3><div class="number" id="porVencer">0</div></div>
+<div class="stat-card"><h3>Vencidas</h3><div class="number" id="vencidas">0</div></div>
+<div class="stat-card"><h3>Total</h3><div class="number" id="total">0</div></div>
+</div>
+
+<div class="charts-grid">
+<div class="chart-container">
+<h3>Estado de Certificaciones</h3>
+<canvas id="estadoChart"></canvas>
+</div>
+<div class="chart-container">
+<h3>Certificaciones on hold</h3>
+<canvas id="holdChart"></canvas>
+</div>
+</div>
+
+<div class="table-container">
+<h3 style="margin-bottom:15px;">Detalle de Certificaciones</h3>
+<table>
+<thead>
+<tr>
+<th>Apellido y Nombre<br><input class="filter-input" onkeyup="filtrar()" data-col="Nombre"></th>
+<th>SAP ID<br><input class="filter-input" onkeyup="filtrar()" data-col="SAP ID"></th>
+<th>Certificacion<br><input class="filter-input" onkeyup="filtrar()" data-col="Certificacion"></th>
+<th>Activity Type<br><input class="filter-input" onkeyup="filtrar()" data-col="Activity Type"></th>
+<th>Fecha Certificacion<br><input class="filter-input" onkeyup="filtrar()" data-col="Fecha_Certificacion"></th>
+<th>Fecha Vencimiento<br><input class="filter-input" onkeyup="filtrar()" data-col="Fecha_Vencimiento"></th>
+<th>Estado<br><input class="filter-input" onkeyup="filtrar()" data-col="Estado"></th>
+<th>Comentarios<br><input class="filter-input" onkeyup="filtrar()" data-col="Comentarios"></th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+
+</div>
+</div>
+
+<script>
+let datosGlobal=[];
+let estadoChart, holdChart;
+
+function procesarCSV(csv){
+    Papa.parse(csv, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results){
+            datosGlobal = results.data;
+            renderizar(datosGlobal);
+        }
+    });
+}
+
 function parsearFecha(fechaStr){
     if(!fechaStr) return null;
-    // Formato DD/MM/YYYY
     const dmy = fechaStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
     if(dmy) return new Date(`${dmy[3]}-${dmy[2]}-${dmy[1]}`);
-    // Formato YYYY-MM-DD
     const ymd = fechaStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if(ymd) return new Date(`${ymd[1]}-${ymd[2]}-${ymd[3]}`);
     return new Date(fechaStr);
+}
+
+function calcularEstado(fecha){
+    const f = parsearFecha(fecha);
+    if(!f || isNaN(f)) return "Vencida";
+    const hoy = new Date();
+    const dias = (f - hoy) / (1000*60*60*24);
+    if(dias < 0) return "Vencida";
+    if(dias <= 90) return "Por Vencer";
+    return "Vigente";
 }
 
 function renderizar(datos){
@@ -31,8 +140,8 @@ function renderizar(datos){
         <td>${d["SAP ID"]||""}</td>
         <td>${d.Certificacion||""}</td>
         <td>${d["Activity Type"]||""}</td>
-        <td>${d["Fecha_Certificacion"]||""}</td>
-        <td>${d["Fecha_Vencimiento"]||""}</td>
+        <td>${d["Fecha_Certificacion"] ? parsearFecha(d["Fecha_Certificacion"]).toLocaleDateString("es-AR") : ""}</td>
+        <td>${d["Fecha_Vencimiento"] ? parsearFecha(d["Fecha_Vencimiento"]).toLocaleDateString("es-AR") : ""}</td>
         <td><span class="status-badge status-${estado}">${estado}</span></td>
         <td>${d.Comentarios||""}</td>
         </tr>`;
@@ -43,7 +152,6 @@ function renderizar(datos){
     document.getElementById("vencidas").textContent=ven;
     document.getElementById("total").textContent=datos.length;
 
-    // Charts
     if(estadoChart) estadoChart.destroy();
     estadoChart=new Chart(document.getElementById("estadoChart"),{
         type:"doughnut",
@@ -56,3 +164,26 @@ function renderizar(datos){
         data:{labels:Object.keys(holdCount), datasets:[{data:Object.values(holdCount)}]}
     });
 }
+
+function filtrar(){
+    const inputs=document.querySelectorAll(".filter-input");
+    let filtrado=datosGlobal.filter(d=>{
+        return Array.from(inputs).every(input=>{
+            const col=input.dataset.col;
+            const val=input.value.toLowerCase();
+            if(!val) return true;
+            return (d[col]||"").toLowerCase().includes(val);
+        });
+    });
+    renderizar(filtrado);
+}
+
+window.onload = function() {
+    if (window.csvData) {
+        procesarCSV(window.csvData);
+    }
+};
+</script>
+
+</body>
+</html>
