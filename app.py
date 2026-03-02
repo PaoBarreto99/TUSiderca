@@ -2,38 +2,38 @@ import streamlit as st
 import pandas as pd
 import streamlit.components.v1 as components
 
-# -------------------------
-# CONFIGURACIÓN DE PÁGINA
-# -------------------------
 st.set_page_config(layout="wide")
 
 # -------------------------
 # CARGA DE DATOS
 # -------------------------
 df = pd.read_csv("certificaciones.csv", encoding="latin-1")
-
-# Convertir fecha a datetime (si querés usarla después)
 df["Fecha_vencimiento"] = pd.to_datetime(df["Fecha_vencimiento"], errors="coerce")
 
+st.title("Dashboard de Certificaciones")
+
 # -------------------------
-# SIDEBAR - FILTROS
+# FILTROS HORIZONTALES
 # -------------------------
-st.sidebar.header("Filtros")
+col1, col2, col3 = st.columns(3)
 
-certificacion = st.sidebar.multiselect(
-    "Certificación",
-    sorted(df["Certificacion"].dropna().unique())
-)
+with col1:
+    certificacion = st.multiselect(
+        "Certificación",
+        sorted(df["Certificacion"].dropna().unique())
+    )
 
-estado = st.sidebar.multiselect(
-    "Estado",
-    sorted(df["Estado"].dropna().unique())
-)
+with col2:
+    estado = st.multiselect(
+        "Estado",
+        sorted(df["Estado"].dropna().unique())
+    )
 
-activity = st.sidebar.multiselect(
-    "Activity Type",
-    sorted(df["Activity Type"].dropna().unique())
-)
+with col3:
+    activity = st.multiselect(
+        "Activity Type",
+        sorted(df["Activity Type"].dropna().unique())
+    )
 
 # -------------------------
 # APLICAR FILTROS
@@ -50,23 +50,26 @@ if activity:
     df_filtrado = df_filtrado[df_filtrado["Activity Type"].isin(activity)]
 
 # -------------------------
-# BOTÓN BORRAR FILTROS
+# BOTONES
 # -------------------------
-if st.sidebar.button("🧹 Borrar filtros"):
-    st.experimental_rerun()
+col4, col5 = st.columns([1,1])
+
+with col4:
+    st.download_button(
+        "📥 Descargar datos filtrados",
+        df_filtrado.to_csv(index=False),
+        "certificaciones_filtradas.csv",
+        "text/csv"
+    )
+
+with col5:
+    if st.button("🧹 Borrar filtros"):
+        st.experimental_rerun()
+
+st.markdown("---")
 
 # -------------------------
-# BOTÓN DESCARGAR FILTRADOS
-# -------------------------
-st.download_button(
-    label="📥 Descargar datos filtrados",
-    data=df_filtrado.to_csv(index=False),
-    file_name="certificaciones_filtradas.csv",
-    mime="text/csv"
-)
-
-# -------------------------
-# INYECTAR DATOS FILTRADOS EN HTML
+# ENVIAR AL HTML
 # -------------------------
 csv_string = df_filtrado.to_csv(index=False)
 
