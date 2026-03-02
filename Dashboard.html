@@ -9,107 +9,30 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Segoe UI;background:#f4f6fa;padding:20px}
-.container{max-width:1600px;margin:auto}
-
+.container{max-width:1500px;margin:auto}
 .header{
 background:linear-gradient(135deg,#6a11cb,#2575fc);
-color:white;
-padding:25px;
-border-radius:12px;
-margin-bottom:25px;
-text-align:center;
+color:white;padding:25px;border-radius:12px;margin-bottom:25px;text-align:center;
 }
+.filters{background:white;padding:15px;border-radius:12px;margin-bottom:25px;display:flex;gap:15px;flex-wrap:wrap}
+.filters input,.filters select{padding:8px;border-radius:8px;border:1px solid #ccc}
+.filters button{padding:8px 15px;border:none;border-radius:8px;background:#6a11cb;color:white;cursor:pointer}
 
-.filters{
-background:white;
-padding:15px;
-border-radius:12px;
-margin-bottom:25px;
-display:flex;
-gap:15px;
-flex-wrap:wrap;
-box-shadow:0 5px 15px rgba(0,0,0,.05);
-}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px}
+.stat-card{background:linear-gradient(135deg,#6a11cb,#2575fc);color:white;padding:20px;border-radius:12px;text-align:center}
+.stat-card .number{font-size:2em;font-weight:bold}
 
-.filters input,.filters select{
-padding:8px;
-border-radius:8px;
-border:1px solid #ccc;
-}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px}
+.chart-container{background:white;padding:15px;border-radius:12px}
 
-.filters button{
-padding:8px 15px;
-border:none;
-border-radius:8px;
-background:#6a11cb;
-color:white;
-cursor:pointer;
-}
-
-.stats-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:20px;
-margin-bottom:30px;
-}
-
-.stat-card{
-background:linear-gradient(135deg,#6a11cb,#2575fc);
-color:white;
-padding:20px;
-border-radius:12px;
-text-align:center;
-}
-
-.stat-card .number{
-font-size:2em;
-font-weight:bold;
-}
-
-.charts-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px;
-margin-bottom:30px;
-}
-
-.chart-container{
-background:white;
-padding:15px;
-border-radius:12px;
-box-shadow:0 5px 15px rgba(0,0,0,.05);
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-background:white;
-}
-
-thead{
-background:#6a11cb;
-color:white;
-}
-
-th,td{
-padding:8px;
-border-bottom:1px solid #eee;
-font-size:13px;
-}
+table{width:100%;border-collapse:collapse;background:white}
+thead{background:#6a11cb;color:white}
+th,td{padding:8px;border-bottom:1px solid #eee;font-size:13px}
 
 .estado-vigente{color:green;font-weight:bold}
 .estado-porvencer{color:orange;font-weight:bold}
 .estado-vencida{color:red;font-weight:bold}
-
-.table-container{
-overflow-x:auto;
-background:white;
-padding:15px;
-border-radius:12px;
-box-shadow:0 5px 15px rgba(0,0,0,.05);
-}
 </style>
 </head>
 
@@ -121,7 +44,7 @@ box-shadow:0 5px 15px rgba(0,0,0,.05);
 </div>
 
 <div class="filters">
-<input type="text" id="filtroNombre" placeholder="Apellido y Nombre">
+<input type="text" id="filtroNombre" placeholder="Nombre">
 <input type="text" id="filtroSAP" placeholder="SAP ID">
 
 <select id="filtroActivity">
@@ -148,14 +71,12 @@ box-shadow:0 5px 15px rgba(0,0,0,.05);
 <h3>Pendientes por OU 4</h3>
 <canvas id="ouChart"></canvas>
 </div>
-
 <div class="chart-container">
 <h3>On Hold</h3>
 <canvas id="holdChart"></canvas>
 </div>
 </div>
 
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -172,7 +93,6 @@ box-shadow:0 5px 15px rgba(0,0,0,.05);
 </thead>
 <tbody id="tableBody"></tbody>
 </table>
-</div>
 
 </div>
 
@@ -183,12 +103,29 @@ let ouChart,holdChart;
 let filtroOU=null;
 let filtroHold=null;
 
+function limpiarValor(v){
+if(v===undefined || v===null) return "";
+return v.toString().trim().replace(/^"|"$/g,"");
+}
+
 function procesarCSV(csv){
+
+csv = csv.replace(/^\uFEFF/, "");
+
 Papa.parse(csv,{
 header:true,
 skipEmptyLines:true,
+transformHeader: h => h.trim(),
 complete:function(results){
-datosGlobal=results.data;
+
+datosGlobal = results.data.map(row=>{
+let limpio={};
+Object.keys(row).forEach(k=>{
+limpio[k.trim()] = limpiarValor(row[k]);
+});
+return limpio;
+});
+
 cargarOpciones();
 renderizar(datosGlobal);
 }
@@ -212,34 +149,22 @@ document.getElementById("filtroCertType").innerHTML+=`<option>${c}</option>`;
 });
 }
 
-function parseFechaMMDDYYYY(fechaStr){
+function parseFecha(fechaStr){
 if(!fechaStr) return null;
 const partes=fechaStr.split("/");
-if(partes.length!==3) return new Date(fechaStr);
-const mes=parseInt(partes[0])-1;
-const dia=parseInt(partes[1]);
-const anio=parseInt(partes[2]);
-return new Date(anio,mes,dia);
+if(partes.length!==3) return null;
+return new Date(partes[2],partes[0]-1,partes[1]);
 }
 
 function calcularEstado(fechaStr){
-const fecha=parseFechaMMDDYYYY(fechaStr);
-if(!fecha || isNaN(fecha)) return "Vencida";
+const fecha=parseFecha(fechaStr);
+if(!fecha) return "Vencida";
 const hoy=new Date();
 hoy.setHours(0,0,0,0);
 const diff=(fecha-hoy)/(1000*60*60*24);
 if(diff<0) return "Vencida";
 if(diff<=90) return "Por Vencer";
 return "Vigente";
-}
-
-function formatearFecha(fechaStr){
-const fecha=parseFechaMMDDYYYY(fechaStr);
-if(!fecha || isNaN(fecha)) return "";
-const dia=String(fecha.getDate()).padStart(2,'0');
-const mes=String(fecha.getMonth()+1).padStart(2,'0');
-const anio=fecha.getFullYear();
-return `${dia}/${mes}/${anio}`;
 }
 
 function aplicarFiltros(){
@@ -251,19 +176,14 @@ const act=document.getElementById("filtroActivity").value;
 const cert=document.getElementById("filtroCertType").value;
 
 datos=datos.filter(d=>{
-return (!nombre|| (d.Nombre||"").toLowerCase().includes(nombre))
-&&(!sap||(d["SAP ID"]||"").toLowerCase().includes(sap))
+return (!nombre||d.Nombre.toLowerCase().includes(nombre))
+&&(!sap||d["SAP ID"].toLowerCase().includes(sap))
 &&(!act||d["Activity Type"]===act)
 &&(!cert||d["Certification Type"]===cert);
 });
 
-if(filtroOU){
-datos=datos.filter(d=>d["OU 4"]===filtroOU);
-}
-
-if(filtroHold){
-datos=datos.filter(d=>d["Comentarios"]===filtroHold);
-}
+if(filtroOU) datos=datos.filter(d=>d["OU 4"]===filtroOU);
+if(filtroHold) datos=datos.filter(d=>d["Comentarios"]===filtroHold);
 
 renderizar(datos);
 }
@@ -285,7 +205,9 @@ const tbody=document.getElementById("tableBody");
 tbody.innerHTML="";
 
 datos.forEach(d=>{
-const estado=calcularEstado(d["Fecha_vencimiento"]);
+
+const fechaOriginal = limpiarValor(d["Fecha_vencimiento"]);
+const estado = calcularEstado(fechaOriginal);
 
 if(estado==="Vigente")vig++;
 if(estado==="Por Vencer")pv++;
@@ -307,13 +229,13 @@ if(estado==="Vencida")clase="estado-vencida";
 
 tbody.innerHTML+=`
 <tr>
-<td>${d.Nombre||""}</td>
-<td>${d["SAP ID"]||""}</td>
-<td>${d["Certification Type"]||""}</td>
-<td>${d.Certificacion||""}</td>
-<td>${d["Activity Type"]||""}</td>
-<td>${d["OU 4"]||""}</td>
-<td>${formatearFecha(d["Fecha_vencimiento"])}</td>
+<td>${d.Nombre}</td>
+<td>${d["SAP ID"]}</td>
+<td>${d["Certification Type"]}</td>
+<td>${d.Certificacion}</td>
+<td>${d["Activity Type"]}</td>
+<td>${d["OU 4"]}</td>
+<td>${fechaOriginal}</td>
 <td class="${clase}">${estado}</td>
 <td>${d.Comentarios||""}</td>
 </tr>`;
