@@ -212,16 +212,34 @@ document.getElementById("filtroCertType").innerHTML+=`<option>${c}</option>`;
 });
 }
 
+function parseFechaMMDDYYYY(fechaStr){
+if(!fechaStr) return null;
+const partes=fechaStr.split("/");
+if(partes.length!==3) return new Date(fechaStr);
+const mes=parseInt(partes[0])-1;
+const dia=parseInt(partes[1]);
+const anio=parseInt(partes[2]);
+return new Date(anio,mes,dia);
+}
+
 function calcularEstado(fechaStr){
-if(!fechaStr) return "Vencida";
-const fecha=new Date(fechaStr);
-if(isNaN(fecha)) return "Vencida";
+const fecha=parseFechaMMDDYYYY(fechaStr);
+if(!fecha || isNaN(fecha)) return "Vencida";
 const hoy=new Date();
 hoy.setHours(0,0,0,0);
 const diff=(fecha-hoy)/(1000*60*60*24);
 if(diff<0) return "Vencida";
 if(diff<=90) return "Por Vencer";
 return "Vigente";
+}
+
+function formatearFecha(fechaStr){
+const fecha=parseFechaMMDDYYYY(fechaStr);
+if(!fecha || isNaN(fecha)) return "";
+const dia=String(fecha.getDate()).padStart(2,'0');
+const mes=String(fecha.getMonth()+1).padStart(2,'0');
+const anio=fecha.getFullYear();
+return `${dia}/${mes}/${anio}`;
 }
 
 function aplicarFiltros(){
@@ -295,7 +313,7 @@ tbody.innerHTML+=`
 <td>${d.Certificacion||""}</td>
 <td>${d["Activity Type"]||""}</td>
 <td>${d["OU 4"]||""}</td>
-<td>${d["Fecha_vencimiento"]||""}</td>
+<td>${formatearFecha(d["Fecha_vencimiento"])}</td>
 <td class="${clase}">${estado}</td>
 <td>${d.Comentarios||""}</td>
 </tr>`;
