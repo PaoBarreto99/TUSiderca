@@ -4,9 +4,6 @@ import streamlit.components.v1 as components
 
 st.set_page_config(layout="wide")
 
-# -------------------------
-# CARGA DE DATOS
-# -------------------------
 df = pd.read_csv("certificaciones.csv", encoding="latin-1")
 
 df.rename(columns={
@@ -16,9 +13,6 @@ df.rename(columns={
 
 df["Fecha_Vencimiento"] = pd.to_datetime(df["Fecha_Vencimiento"], errors="coerce")
 
-# -------------------------
-# DASHBOARD
-# -------------------------
 csv_string = df.to_csv(index=False)
 
 with open("Dashboard.html", "r", encoding="utf-8") as f:
@@ -29,4 +23,4 @@ html_code = html_code.replace(
     f"<script>window.csvData = `{csv_string}`;</script></head>"
 )
 
-components.html(html_code, height=950, scrolling=True)
+components.html(html_code, height=1000, scrolling=True)
