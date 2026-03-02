@@ -1,12 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import requests
 
-# Pega aquí el link "raw" de tu HTML en GitHub
-html_url = "https://github.com/PaoBarreto99/TUSiderca.git"
+with open("Dashboard.html", "r", encoding="utf-8") as f:
+    html_code = f.read()
 
-# Descargar contenido del HTML
-html_code = requests.get(html_url).text
-
-# Mostrar HTML en Streamlit
-components.html(html_code, height=600, scrolling=True)
+components.html(html_code, height=800, scrolling=True)
