@@ -10,68 +10,42 @@ st.set_page_config(layout="wide")
 df = pd.read_csv("certificaciones.csv", encoding="latin-1")
 df["Fecha_vencimiento"] = pd.to_datetime(df["Fecha_vencimiento"], errors="coerce")
 
-st.title("Dashboard de Certificaciones")
+st.title("📋 Dashboard de Certificaciones")
 
-# -------------------------
-# FILTROS HORIZONTALES
-# -------------------------
-col1, col2, col3 = st.columns(3)
+st.markdown("### 🔎 Filtrar datos (tipo Excel)")
 
-with col1:
-    certificacion = st.multiselect(
-        "Certificación",
-        sorted(df["Certificacion"].dropna().unique())
-    )
+# Data editor con filtros integrados
+df_editado = st.data_editor(
+    df,
+    use_container_width=True,
+    hide_index=True
+)
 
-with col2:
-    estado = st.multiselect(
-        "Estado",
-        sorted(df["Estado"].dropna().unique())
-    )
-
-with col3:
-    activity = st.multiselect(
-        "Activity Type",
-        sorted(df["Activity Type"].dropna().unique())
-    )
-
-# -------------------------
-# APLICAR FILTROS
-# -------------------------
-df_filtrado = df.copy()
-
-if certificacion:
-    df_filtrado = df_filtrado[df_filtrado["Certificacion"].isin(certificacion)]
-
-if estado:
-    df_filtrado = df_filtrado[df_filtrado["Estado"].isin(estado)]
-
-if activity:
-    df_filtrado = df_filtrado[df_filtrado["Activity Type"].isin(activity)]
+st.markdown("---")
 
 # -------------------------
 # BOTONES
 # -------------------------
-col4, col5 = st.columns([1,1])
+col1, col2 = st.columns(2)
 
-with col4:
+with col1:
     st.download_button(
         "📥 Descargar datos filtrados",
-        df_filtrado.to_csv(index=False),
+        df_editado.to_csv(index=False),
         "certificaciones_filtradas.csv",
         "text/csv"
     )
 
-with col5:
-    if st.button("🧹 Borrar filtros"):
+with col2:
+    if st.button("🧹 Resetear datos"):
         st.experimental_rerun()
 
 st.markdown("---")
 
 # -------------------------
-# ENVIAR AL HTML
+# ENVIAR DATOS AL HTML
 # -------------------------
-csv_string = df_filtrado.to_csv(index=False)
+csv_string = df_editado.to_csv(index=False)
 
 with open("Dashboard.html", "r", encoding="utf-8") as f:
     html_code = f.read()
