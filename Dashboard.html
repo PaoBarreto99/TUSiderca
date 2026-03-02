@@ -9,9 +9,33 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',Tahoma,Verdana,sans-serif;background:#f4f6fa;padding:20px}
-.container{max-width:1600px;margin:auto}
 
+body{
+font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
+background:#f4f6fa;
+padding:20px;
+}
+
+.container{
+max-width:1600px;
+margin:auto;
+}
+
+/* 🔥 HEADER VIOLETA */
+.header{
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+color:white;
+padding:30px;
+text-align:center;
+border-radius:15px;
+margin-bottom:25px;
+}
+
+.header h1{
+font-size:2em;
+}
+
+/* FILTROS */
 .filters{
 background:white;
 padding:15px;
@@ -38,6 +62,7 @@ color:white;
 cursor:pointer;
 }
 
+/* KPIs */
 .stats-grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
@@ -58,6 +83,7 @@ font-size:2em;
 font-weight:bold;
 }
 
+/* GRÁFICOS */
 .charts-grid{
 display:grid;
 grid-template-columns:1fr 1fr;
@@ -72,6 +98,7 @@ border-radius:12px;
 box-shadow:0 5px 15px rgba(0,0,0,.05);
 }
 
+/* TABLA */
 table{
 width:100%;
 border-collapse:collapse;
@@ -105,6 +132,11 @@ box-shadow:0 5px 15px rgba(0,0,0,.05);
 
 <body>
 <div class="container">
+
+<div class="header">
+<h1>📋 Dashboard de Certificaciones</h1>
+<p>Gestión y seguimiento profesional</p>
+</div>
 
 <div class="filters">
 <input type="text" id="filtroNombre" placeholder="Apellido y Nombre">
@@ -204,24 +236,6 @@ if(dias<=90) return "Por Vencer";
 return "Vigente";
 }
 
-function aplicarFiltros(){
-if(filtroGrafico) return;
-
-const nombre=document.getElementById("filtroNombre").value.toLowerCase();
-const sap=document.getElementById("filtroSAP").value.toLowerCase();
-const act=document.getElementById("filtroActivity").value;
-const cert=document.getElementById("filtroCertType").value;
-
-const filtrados=datosGlobal.filter(d=>{
-return (!nombre|| (d.Nombre||"").toLowerCase().includes(nombre))
-&&(!sap||(d["SAP ID"]||"").toLowerCase().includes(sap))
-&&(!act||d["Activity Type"]===act)
-&&(!cert||d["Certification Type"]===cert);
-});
-
-renderizar(filtrados);
-}
-
 function resetTotal(){
 filtroGrafico=null;
 document.getElementById("filtroNombre").value="";
@@ -273,12 +287,19 @@ document.getElementById("porVencer").textContent=pv;
 document.getElementById("vencidas").textContent=ven;
 document.getElementById("total").textContent=datos.length;
 
-if(ouChart) ouChart.destroy();
-const ouLabels=Object.keys(ouCount);
+/* 🔥 ORDENAR DE MAYOR A MENOR */
+const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1]);
+const ouLabels=sortedOU.map(e=>e[0]);
+const ouValues=sortedOU.map(e=>e[1]);
 
+const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1]);
+const holdLabels=sortedHold.map(e=>e[0]);
+const holdValues=sortedHold.map(e=>e[1]);
+
+if(ouChart) ouChart.destroy();
 ouChart=new Chart(document.getElementById("ouChart"),{
 type:"bar",
-data:{labels:ouLabels,datasets:[{data:Object.values(ouCount)}]},
+data:{labels:ouLabels,datasets:[{data:ouValues}]},
 options:{
 indexAxis:'y',
 onClick:(evt,elements)=>{
@@ -297,11 +318,9 @@ renderizar(datosGlobal.filter(d=>d["OU 4"]===ou));
 });
 
 if(holdChart) holdChart.destroy();
-const holdLabels=Object.keys(holdCount);
-
 holdChart=new Chart(document.getElementById("holdChart"),{
 type:"bar",
-data:{labels:holdLabels,datasets:[{data:Object.values(holdCount)}]},
+data:{labels:holdLabels,datasets:[{data:holdValues}]},
 options:{
 onClick:(evt,elements)=>{
 if(elements.length>0){
@@ -319,9 +338,6 @@ renderizar(datosGlobal.filter(d=>d.Comentarios===hold));
 });
 
 }
-
-document.addEventListener("input", aplicarFiltros);
-document.addEventListener("change", aplicarFiltros);
 
 window.onload=function(){
 if(window.csvData){
