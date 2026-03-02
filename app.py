@@ -1,20 +1,22 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 import plotly.express as px
 
-# Configuración de la página
 st.set_page_config(layout="wide", page_title="Dashboard de Certificaciones")
 
 # --- Leer CSV ---
 df = pd.read_csv("certificaciones.csv", encoding="latin-1")
+
+# --- Normalizar nombres de columna ---
+df.columns = df.columns.str.strip()  # quita espacios al inicio/final
 
 # --- Convertir columnas de fecha a datetime ---
 for col in df.columns:
     if "fecha" in col.lower():
         df[col] = pd.to_datetime(df[col], dayfirst=True, errors='coerce')
 
-# --- Calcular estado de cada certificación ---
+# --- Calcular estado ---
 def estado(fecha_vencimiento):
     if pd.isna(fecha_vencimiento):
         return "Vencida"
@@ -27,9 +29,10 @@ def estado(fecha_vencimiento):
     else:
         return "Vigente"
 
-df["Estado"] = df["Fecha_Vencimiento"].apply(estado)
+# Usa los nombres exactos de tu CSV
+df["Estado"] = df["Fecha_vencimiento"].apply(estado)
 
-# --- Mostrar KPIs ---
+# --- KPIs ---
 st.header("📋 Dashboard de Certificaciones")
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Vigentes", (df["Estado"]=="Vigente").sum())
@@ -37,11 +40,11 @@ col2.metric("Por Vencer", (df["Estado"]=="Por Vencer").sum())
 col3.metric("Vencidas", (df["Estado"]=="Vencida").sum())
 col4.metric("Total", len(df))
 
-# --- Tabla de detalle ---
+# --- Tabla ---
 st.subheader("Detalle de Certificaciones")
 st.dataframe(df, use_container_width=True)
 
-# --- Gráfico de estado de certificaciones ---
+# --- Gráfico de estado ---
 st.subheader("Estado de Certificaciones")
 estado_counts = df["Estado"].value_counts().reset_index()
 estado_counts.columns = ["Estado", "Cantidad"]
