@@ -21,7 +21,6 @@ body{font-family:'Segoe UI',Tahoma,Verdana,sans-serif;background:linear-gradient
 .stat-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:25px;border-radius:12px;text-align:center}
 .stat-card .number{font-size:2em;font-weight:bold}
 
-/* 🔹 GRAFICOS MÁS CHICOS */
 .charts-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -35,7 +34,7 @@ body{font-family:'Segoe UI',Tahoma,Verdana,sans-serif;background:linear-gradient
     border-radius:12px;
     width:100%;
     max-width:450px;
-    height:280px; /* mitad de tamaño */
+    height:280px;
     margin:auto;
 }
 
@@ -74,13 +73,11 @@ tbody tr:hover{background:#f5f5f5}
 
 <div class="charts-grid">
 
-<!-- 🔹 PRIMERO OU 4 -->
 <div class="chart-container">
 <h3>Pendientes por OU 4</h3>
 <canvas id="ouChart"></canvas>
 </div>
 
-<!-- 🔹 SEGUNDO ON HOLD -->
 <div class="chart-container">
 <h3>Certificaciones On Hold</h3>
 <canvas id="holdChart"></canvas>
@@ -95,6 +92,7 @@ tbody tr:hover{background:#f5f5f5}
 <tr>
 <th>Apellido y Nombre</th>
 <th>SAP ID</th>
+<th>Certification Type</th> <!-- NUEVA COLUMNA -->
 <th>Certificacion</th>
 <th>Activity Type</th>
 <th>OU 4</th>
@@ -170,6 +168,7 @@ function renderizar(datos){
         <tr>
         <td>${d.Nombre||""}</td>
         <td>${d["SAP ID"]||""}</td>
+        <td>${d["Certification Type"]||""}</td> <!-- NUEVA COLUMNA -->
         <td>${d.Certificacion||""}</td>
         <td>${d["Activity Type"]||""}</td>
         <td>${d["OU 4"]||""}</td>
@@ -184,7 +183,6 @@ function renderizar(datos){
     document.getElementById("vencidas").textContent=ven;
     document.getElementById("total").textContent=datos.length;
 
-    // 🔹 OU 4 ORDENADO
     const sortedOU=Object.entries(ouPendientes).sort((a,b)=>b[1]-a[1]);
     const labelsOU=sortedOU.map(e=>e[0]);
     const valuesOU=sortedOU.map(e=>e[1]);
@@ -198,43 +196,20 @@ function renderizar(datos){
     if(ouChart) ouChart.destroy();
     ouChart=new Chart(document.getElementById("ouChart"),{
         type:"bar",
-        data:{
-            labels:labelsOU,
-            datasets:[{
-                data:valuesOU,
-                backgroundColor:colorsOU
-            }]
-        },
+        data:{labels:labelsOU,datasets:[{data:valuesOU,backgroundColor:colorsOU}]},
         options:{
             indexAxis:'y',
-            plugins:{
-                legend:{display:false},
-                datalabels:{
-                    anchor:'end',
-                    align:'right',
-                    font:{weight:'bold'}
-                }
-            },
+            plugins:{legend:{display:false},datalabels:{anchor:'end',align:'right',font:{weight:'bold'}}},
             responsive:true
         },
         plugins:[ChartDataLabels]
     });
 
-    // 🔹 ON HOLD
     if(holdChart) holdChart.destroy();
     holdChart=new Chart(document.getElementById("holdChart"),{
         type:"bar",
-        data:{
-            labels:Object.keys(holdCount),
-            datasets:[{
-                data:Object.values(holdCount),
-                backgroundColor:"#6c757d"
-            }]
-        },
-        options:{
-            plugins:{legend:{display:false}},
-            responsive:true
-        }
+        data:{labels:Object.keys(holdCount),datasets:[{data:Object.values(holdCount),backgroundColor:"#6c757d"}]},
+        options:{plugins:{legend:{display:false}},responsive:true}
     });
 }
 
