@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import streamlit.components.v1 as components
 
+st.set_page_config(layout="wide")
+
 # Leer CSV
 df = pd.read_csv("certificaciones.csv", encoding="latin-1")
 
@@ -19,6 +21,7 @@ html_code = html_code.replace(
 )
 
 components.html(html_code, height=1000, scrolling=True)
+
 
 
 
