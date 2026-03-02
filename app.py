@@ -1,54 +1,306 @@
-import streamlit as st
-import pandas as pd
-import streamlit.components.v1 as components
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-# Configuración
-st.set_page_config(layout="wide")
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
-# 🔥 Quitar márgenes y header de Streamlit
-st.markdown("""
 <style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
+background:#f4f6fa;
+padding:20px;
+}
+.container{max-width:1700px;margin:auto}
 
-/* Quitar padding */
-.block-container {
-    padding-top: 0rem !important;
-    padding-bottom: 0rem !important;
-    padding-left: 0rem !important;
-    padding-right: 0rem !important;
+.header{
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+color:white;
+padding:30px;
+text-align:center;
+border-radius:15px;
+margin-bottom:25px;
 }
 
-.main {
-    padding: 0rem !important;
+.filters{
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:25px;
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+box-shadow:0 5px 15px rgba(0,0,0,.05);
 }
 
-/* Ocultar header y footer */
-header {visibility: hidden;}
-footer {visibility: hidden;}
+.filters input,.filters select{
+padding:8px;
+border-radius:8px;
+border:1px solid #ccc;
+}
 
+.filters button{
+padding:8px 15px;
+border:none;
+border-radius:8px;
+background:#667eea;
+color:white;
+cursor:pointer;
+}
+
+.stats-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+margin-bottom:30px;
+}
+
+.stat-card{
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+color:white;
+padding:20px;
+border-radius:12px;
+text-align:center;
+}
+
+.stat-card .number{
+font-size:2em;
+font-weight:bold;
+}
+
+.estado-vigente{color:#2ecc71;font-weight:bold}
+.estado-vencida{color:#e74c3c;font-weight:bold}
+.estado-porvencer{color:#f39c12;font-weight:bold}
+
+.charts-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+margin-bottom:30px;
+}
+
+.chart-container{
+background:white;
+padding:15px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,.05);
+}
+
+table{width:100%;border-collapse:collapse;background:white}
+thead{background:#667eea;color:white}
+th,td{padding:8px;border-bottom:1px solid #eee;font-size:13px}
+tbody tr:hover{background:#f5f5f5}
+
+.table-container{
+overflow-x:auto;
+background:white;
+padding:15px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,.05);
+}
 </style>
-""", unsafe_allow_html=True)
+</head>
 
+<body>
+<div class="container">
 
-# 📄 Leer CSV
-df = pd.read_csv("certificaciones.csv", encoding="latin-1")
+<div class="header">
+<h1>📋 Dashboard de Certificaciones</h1>
+<p>Gestión y seguimiento profesional</p>
+</div>
 
-df.rename(columns={
-    "Fecha_vencimiento": "Fecha_Vencimiento",
-    "Fecha_certificacion": "Fecha_Certificacion"
-}, inplace=True)
+<div class="filters">
+<input type="text" id="filtroNombre" placeholder="Nombre" oninput="aplicarFiltros()">
+<input type="text" id="filtroSAP" placeholder="SAP ID" oninput="aplicarFiltros()">
 
-df["Fecha_Vencimiento"] = pd.to_datetime(df["Fecha_Vencimiento"], errors="coerce")
+<select id="filtroActivity" onchange="aplicarFiltros()">
+<option value="">Activity Type</option>
+</select>
 
-csv_string = df.to_csv(index=False)
+<select id="filtroCertType" onchange="aplicarFiltros()">
+<option value="">Certification Type</option>
+</select>
 
+<button onclick="resetTotal()">Reset</button>
+</div>
 
-# 📄 Cargar HTML
-with open("Dashboard.html", "r", encoding="utf-8") as f:
-    html_code = f.read()
+<div class="stats-grid">
+<div class="stat-card"><h3>Vigentes</h3><div class="number" id="vigentes">0</div></div>
+<div class="stat-card"><h3>Por Vencer</h3><div class="number" id="porVencer">0</div></div>
+<div class="stat-card"><h3>Vencidas</h3><div class="number" id="vencidas">0</div></div>
+<div class="stat-card"><h3>Total</h3><div class="number" id="total">0</div></div>
+</div>
 
-html_code = html_code.replace(
-    "</head>",
-    f"<script>window.csvData = `{csv_string}`;</script></head>"
-)
+<div class="charts-grid">
+<div class="chart-container">
+<h3>Pendientes por OU 4</h3>
+<canvas id="ouChart"></canvas>
+</div>
+<div class="chart-container">
+<h3>Certificaciones On Hold</h3>
+<canvas id="holdChart"></canvas>
+</div>
+</div>
 
-components.html(html_code, height=1200, scrolling=True)
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Nombre</th>
+<th>SAP ID</th>
+<th>Certification Type</th>
+<th>Certificacion</th>
+<th>Activity Type</th>
+<th>OU 4</th>
+<th>Fecha_vencimiento</th>
+<th>Estado</th>
+<th>Comentarios</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+
+</div>
+
+<script>
+
+let datosGlobal=[];
+let ouChart,holdChart;
+
+function procesarCSV(csv){
+Papa.parse(csv,{
+header:true,
+skipEmptyLines:true,
+complete:function(results){
+datosGlobal=results.data;
+cargarOpciones();
+aplicarFiltros();
+}
+});
+}
+
+function cargarOpciones(){
+const actSet=new Set();
+const certSet=new Set();
+
+datosGlobal.forEach(d=>{
+if(d["Activity Type"]) actSet.add(d["Activity Type"]);
+if(d["Certification Type"]) certSet.add(d["Certification Type"]);
+});
+
+const actSelect=document.getElementById("filtroActivity");
+const certSelect=document.getElementById("filtroCertType");
+
+[...actSet].sort().forEach(a=>{
+actSelect.innerHTML+=`<option value="${a}">${a}</option>`;
+});
+[...certSet].sort().forEach(c=>{
+certSelect.innerHTML+=`<option value="${c}">${c}</option>`;
+});
+}
+
+function aplicarFiltros(){
+
+const nombre=document.getElementById("filtroNombre").value.toLowerCase();
+const sap=document.getElementById("filtroSAP").value.toLowerCase();
+const act=document.getElementById("filtroActivity").value;
+const cert=document.getElementById("filtroCertType").value;
+
+const filtrados=datosGlobal.filter(d=>{
+return (!nombre || (d["Nombre"]||"").toLowerCase().includes(nombre))
+&&(!sap || (d["SAP ID"]||"").toLowerCase().includes(sap))
+&&(!act || d["Activity Type"]===act)
+&&(!cert || d["Certification Type"]===cert);
+});
+
+renderizar(filtrados);
+}
+
+function resetTotal(){
+document.getElementById("filtroNombre").value="";
+document.getElementById("filtroSAP").value="";
+document.getElementById("filtroActivity").value="";
+document.getElementById("filtroCertType").value="";
+renderizar(datosGlobal);
+}
+
+function renderizar(datos){
+
+let vig=0,pv=0,ven=0;
+let ouCount={},holdCount={};
+const tbody=document.getElementById("tableBody");
+tbody.innerHTML="";
+
+datos.forEach(d=>{
+
+const est=(d["Estado"]||"").trim();
+
+if(est==="Vigente")vig++;
+if(est==="Por Vencer")pv++;
+if(est==="Vencida")ven++;
+
+if(est!=="Vigente"){
+const ou=d["OU 4"]||"Sin OU";
+ouCount[ou]=(ouCount[ou]||0)+1;
+}
+
+if(d["Comentarios"]){
+holdCount[d["Comentarios"]]=(holdCount[d["Comentarios"]]||0)+1;
+}
+
+let clase="";
+if(est==="Vigente")clase="estado-vigente";
+if(est==="Vencida")clase="estado-vencida";
+if(est==="Por Vencer")clase="estado-porvencer";
+
+tbody.innerHTML+=`
+<tr>
+<td>${d["Nombre"]||""}</td>
+<td>${d["SAP ID"]||""}</td>
+<td>${d["Certification Type"]||""}</td>
+<td>${d["Certificacion"]||""}</td>
+<td>${d["Activity Type"]||""}</td>
+<td>${d["OU 4"]||""}</td>
+<td>${d["Fecha_vencimiento"]||""}</td>
+<td class="${clase}">${est}</td>
+<td>${d["Comentarios"]||""}</td>
+</tr>`;
+});
+
+document.getElementById("vigentes").textContent=vig;
+document.getElementById("porVencer").textContent=pv;
+document.getElementById("vencidas").textContent=ven;
+document.getElementById("total").textContent=datos.length;
+
+const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1]);
+const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1]);
+
+if(ouChart) ouChart.destroy();
+ouChart=new Chart(document.getElementById("ouChart"),{
+type:"bar",
+data:{labels:sortedOU.map(e=>e[0]),datasets:[{data:sortedOU.map(e=>e[1])}]},
+options:{indexAxis:'y'}
+});
+
+if(holdChart) holdChart.destroy();
+holdChart=new Chart(document.getElementById("holdChart"),{
+type:"bar",
+data:{labels:sortedHold.map(e=>e[0]),datasets:[{data:sortedHold.map(e=>e[1])}]}
+});
+
+}
+
+window.onload=function(){
+if(window.csvData){
+procesarCSV(window.csvData);
+}
+}
+
+</script>
+
+</body>
+</html>
