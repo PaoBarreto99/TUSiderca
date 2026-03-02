@@ -27,7 +27,6 @@ if "Fecha_Vencimiento" in df.columns:
 # FILTRO ARRIBA (Certification Type)
 # ==============================
 
-st.title("Dashboard de Certificaciones")
 
 if "Certification Type" in df.columns:
 
@@ -62,3 +61,4 @@ html_code = html_code.replace(
 )
 
 components.html(html_code, height=1000, scrolling=True)
+
