@@ -1,72 +1,136 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+import streamlit.components.v1 as components
 
+# -------------------------
+# CONFIGURACIÓN
+# -------------------------
 st.set_page_config(layout="wide")
 
-# ===== CARGAR DATOS =====
-df = pd.read_excel("datos.xlsx")
-df = df.fillna("")
+# -------------------------
+# ESTILO COMPACTO
+# -------------------------
+st.markdown("""
+<style>
+div[data-baseweb="select"] {
+    font-size: 13px;
+}
+div[data-baseweb="input"] {
+    font-size: 13px;
+}
+</style>
+""", unsafe_allow_html=True)
 
-# ===== KPIs =====
-total = len(df)
-vencidos = len(df[df["Estado"] == "Vencido"]) if "Estado" in df.columns else 0
-por_vencer = len(df[df["Estado"] == "Por vencer"]) if "Estado" in df.columns else 0
+# -------------------------
+# CARGA DE DATOS
+# -------------------------
+df = pd.read_csv("certificaciones.csv", encoding="latin-1")
+df["Fecha_vencimiento"] = pd.to_datetime(df["Fecha_vencimiento"], errors="coerce")
 
-col1, col2, col3 = st.columns(3)
+# -------------------------
+# INICIALIZAR FILTROS
+# -------------------------
+if "filtros_activos" not in st.session_state:
+    st.session_state.filtros_activos = False
 
-col1.metric("Total registros", total)
-col2.metric("Vencidos", vencidos)
-col3.metric("Por vencer", por_vencer)
-
-st.markdown("---")
-
-# ===== GRÁFICOS =====
-col4, col5 = st.columns(2)
-
-if "Estado" in df.columns:
-    fig_estado = px.bar(df, x="Estado")
-    col4.plotly_chart(fig_estado, use_container_width=True)
-
-if "Certificación" in df.columns:
-    fig_cert = px.pie(df, names="Certificación")
-    col5.plotly_chart(fig_cert, use_container_width=True)
-
-st.markdown("---")
-
-# ===== FILTROS DEBAJO DE GRÁFICOS =====
-st.subheader("Filtros")
-
-filtro_nombre = st.text_input("Filtrar por Nombre")
-filtro_sap = st.text_input("Filtrar por SAP ID")
-filtro_estado = st.selectbox("Filtrar por Estado", ["Todos"] + list(df["Estado"].unique()) if "Estado" in df.columns else ["Todos"])
-
+# -------------------------
+# APLICAR FILTROS (VACÍO AL INICIO)
+# -------------------------
 df_filtrado = df.copy()
 
-if filtro_nombre:
-    df_filtrado = df_filtrado[df_filtrado["Nombre"].astype(str).str.contains(filtro_nombre, case=False)]
+# -------------------------
+# DASHBOARD ARRIBA
+# -------------------------
+csv_string = df_filtrado.to_csv(index=False)
 
-if filtro_sap:
-    df_filtrado = df_filtrado[df_filtrado["SAP ID"].astype(str).str.contains(filtro_sap, case=False)]
+with open("Dashboard.html", "r", encoding="utf-8") as f:
+    html_code = f.read()
 
-if filtro_estado != "Todos":
-    df_filtrado = df_filtrado[df_filtrado["Estado"] == filtro_estado]
+html_code = html_code.replace(
+    "</head>",
+    f"<script>window.csvData = `{csv_string}`;</script></head>"
+)
+
+components.html(html_code, height=950, scrolling=True)
 
 st.markdown("---")
+st.markdown("#### Filtros")
 
-# ===== BOTÓN EXPORTAR =====
-st.download_button(
-    label="Exportar datos",
-    data=df_filtrado.to_csv(index=False).encode("utf-8"),
-    file_name="datos_filtrados.csv",
-    mime="text/csv"
-)
+# -------------------------
+# FILTROS COMPACTOS
+# -------------------------
+col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1.2])
 
-# ===== TABLA CON SCROLL =====
-st.subheader("Datos")
+with col1:
+    filtro_cert = st.multiselect(
+        "",
+        sorted(df["Certificacion"].dropna().unique()),
+        placeholder="Certificación"
+    )
 
-st.dataframe(
-    df_filtrado,
-    use_container_width=True,
-    height=400
-)
+with col2:
+    filtro_estado = st.multiselect(
+        "",
+        sorted(df["Estado"].dropna().unique()),
+        placeholder="Estado"
+    )
+
+with col3:
+    filtro_activity = st.multiselect(
+        "",
+        sorted(df["Activity Type"].dropna().unique()),
+        placeholder="Activity Type"
+    )
+
+with col4:
+    fecha_min = df["Fecha_vencimiento"].min()
+    fecha_max = df["Fecha_vencimiento"].max()
+
+    filtro_fecha = st.date_input(
+        "",
+        value=(fecha_min, fecha_max)
+    )
+
+with col5:
+    col_btn1, col_btn2 = st.columns([1, 1])
+
+    with col_btn1:
+        exportar = st.download_button(
+            "Exportar datos",
+            df_filtrado.to_csv(index=False),
+            "certificaciones.csv",
+            "text/csv",
+            use_container_width=True
+        )
+
+    with col_btn2:
+        borrar = st.button(
+            "Borrar filtros",
+            use_container_width=True
+        )
+
+# -------------------------
+# APLICAR FILTROS DESPUÉS DE INPUTS
+# -------------------------
+df_filtrado = df.copy()
+
+if filtro_cert:
+    df_filtrado = df_filtrado[df_filtrado["Certificacion"].isin(filtro_cert)]
+
+if filtro_estado:
+    df_filtrado = df_filtrado[df_filtrado["Estado"].isin(filtro_estado)]
+
+if filtro_activity:
+    df_filtrado = df_filtrado[df_filtrado["Activity Type"].isin(filtro_activity)]
+
+if isinstance(filtro_fecha, tuple) and len(filtro_fecha) == 2:
+    df_filtrado = df_filtrado[
+        (df_filtrado["Fecha_vencimiento"] >= pd.to_datetime(filtro_fecha[0])) &
+        (df_filtrado["Fecha_vencimiento"] <= pd.to_datetime(filtro_fecha[1]))
+    ]
+
+# -------------------------
+# BORRAR FILTROS
+# -------------------------
+if borrar:
+    st.rerun()
