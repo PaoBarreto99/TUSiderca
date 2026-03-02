@@ -89,12 +89,12 @@ Nombre,SAP ID,Certification Type,Certificacion,Activity Type,OU 4,Fecha_vencimie
 "Pequera, Brenda Gisella",60088585,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,"Premium, Dopeless, Coupling & Prot. Sid",2/10/2026,Overdue,
 "Penida, Alex Ramon Andres",60076882,,00409747-OJT Auxiliary,On the Job Training,Steel Shop - Siderca,,Pending,
 "Pattini, Elias Osman",60062250,,IHSHS005-GCU Safety in Maintenance,Course,Manufacturing Mill 1,,Pending,
-"Pastorini, Tobias Uriel",60098750,,IHSHS047-GCU Work at Heights,Course,Steel Shop - Siderca,2/26/2029,Pending,
-"Pastorini, Tobias Uriel",60098750,,IHSHS048-GCU Working at Heights Refresh,Course,Steel Shop - Siderca,2/26/2029,Pending,
+"Pastorini, Tobias Uriel",60098750,,IHSHS047-GCU Work at Heights,Course,Steel Shop - Siderca,2/26/2029,Pending,Error LMS viejo
+"Pastorini, Tobias Uriel",60098750,,IHSHS048-GCU Working at Heights Refresh,Course,Steel Shop - Siderca,2/26/2029,Pending,Error LMS viejo
 "Ortiz Molina, Gabriel Adrian",60062747,,00409799-OJT Cut Off Operator,On the Job Training,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,
 "Ojeda, Carlos Hernan",60101802,,00409760-OJT Auxiliary,On the Job Training,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,
-"Ochoa, Roberto Javier",20015986,NDT,70552053 Flux Leakage testing L2 - Initial Avg. Test,Knowledge Test,Manufacturing Mill 1,6/2/2026,Pending,
-"Ochoa, Roberto Javier",20015986,NDT,IQTTS223-GCE-C Flux Leakage testing L2 Certification,Certification,Manufacturing Mill 1,6/2/2026,Pending,
+"Ochoa, Roberto Javier",20015986,NDT,70552053 Flux Leakage testing L2 - Initial Avg. Test,Knowledge Test,Manufacturing Mill 1,6/2/2026,Pending,Error LMS viejo
+"Ochoa, Roberto Javier",20015986,NDT,IQTTS223-GCE-C Flux Leakage testing L2 Certification,Certification,Manufacturing Mill 1,6/2/2026,Pending,Error LMS viejo
 "Ocampo, Osvaldo Luciano",20010576,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Verification & Control - Siderca,2/5/2026,Overdue,
 "Ocampo, Osvaldo Luciano",20010576,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Verification & Control - Siderca,2/5/2026,Overdue,
 "Nuñez, Adrian Esteban",20013181,NDT,70552053 Flux Leakage testing L2 - Initial Avg. Test,Knowledge Test,Manufacturing Mill 1,3/9/2015,Pending,
@@ -115,7 +115,7 @@ Nombre,SAP ID,Certification Type,Certificacion,Activity Type,OU 4,Fecha_vencimie
 "Mendoza, Miguel Angel",20013442,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,General Services - Siderca,11/2/2025,Overdue,
 "Mendoza, Miguel Angel",20013442,,IHSHS126-GCE Lockout Tagout ? Certification,Certification,General Services - Siderca,2/7/2026,Overdue,
 "Meloni, Aurelia",60089145,,00414804-OJT Integrated R&D Operator L4,On the Job Training,R&D Surfaces & Coatings - Argentina,,Pending,
-"Mazzola, Lucas Sebastian",60071622,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,2/10/2029,Overdue,
+"Mazzola, Lucas Sebastian",60071622,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,2/10/2029,Overdue,Error LMS viejo
 "Martinez, Sabrina Pamela",60088077,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Manufacturing Mill 1,1/30/2026,Overdue,
 "Martinez, Sabrina Pamela",60088077,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Manufacturing Mill 1,1/30/2026,Overdue,
 "Martinez, Leandro Jose",20011750,,IHSHS048-GCU Working at Heights Refresh,Course,Maintenance - Siderca,11/15/2025,Overdue,
@@ -147,15 +147,15 @@ Nombre,SAP ID,Certification Type,Certificacion,Activity Type,OU 4,Fecha_vencimie
 "Lopez, Joaquin Tobías",60101801,,00409981-OJT Industrial Services Electromechanic L3,On the Job Training,Manufacturing Mill 1,,Pending,
 "Lopez, Joaquin Tobías",60101801,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Manufacturing Mill 1,,Pending,
 "Lopez, Joaquin Tobías",60101801,,IHSHS001-OJT Remote Control Cranes - OJT,On the Job Training,Manufacturing Mill 1,,Pending,
-"Lopez, Joaquin Tobías",60101801,,IHSHS035-OJT Work at Heights OJT,On the Job Training,Manufacturing Mill 1,6/6/2028,Pending,
-"Lopez, Joaquin Tobías",60101801,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Manufacturing Mill 1,6/6/2028,Pending,
+"Lopez, Joaquin Tobías",60101801,,IHSHS035-OJT Work at Heights OJT,On the Job Training,Manufacturing Mill 1,6/6/2028,Pending,Error LMS viejo
+"Lopez, Joaquin Tobías",60101801,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Manufacturing Mill 1,6/6/2028,Pending,Error LMS viejo
 "Leiss, Gustavo Martin",20012798,,IHSHS048-GCU Working at Heights Refresh,Course,Manufacturing Mill 1,11/15/2025,Overdue,
 "Leiss, Gustavo Martin",20012798,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Manufacturing Mill 1,11/15/2025,Overdue,
 "Lares, Tomas Leonardo",60087663,,00410348-OJT Oxycut Operator,On the Job Training,Scrap Operations - Argentina,,Pending,
 "Jimenez, Matias Ezequiel",60062264,,IQTQAC20-GCU COURSE - Thread inspection - Couplings,Course,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,
 "Ibarrola, Laura Jaqueline",60087803,,00410348-OJT Oxycut Operator,On the Job Training,Scrap Operations - Argentina,,Pending,
-"Guilanea, Federico Oscar",20017761,,IHSHS035-OJT Work at Heights OJT,On the Job Training,Steel Shop - Siderca,7/11/2028,Pending,
-"Guilanea, Federico Oscar",20017761,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Steel Shop - Siderca,7/11/2028,Pending,
+"Guilanea, Federico Oscar",20017761,,IHSHS035-OJT Work at Heights OJT,On the Job Training,Steel Shop - Siderca,7/11/2028,Pending,Error LMS viejo
+"Guilanea, Federico Oscar",20017761,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Steel Shop - Siderca,7/11/2028,Pending,Error LMS viejo
 "Grigoli, Luis Sebastian",60053479,,IQTQAC20-GCE PRACTICAL TEST - Thread inspection - Couplings,Practical Test,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,Cambio de puesto
 "Gotta, Juan Martin",60083879,,00414804-OJT Integrated R&D Operator L4,On the Job Training,R&D Full Scale Laboratory - Argentina,,Pending,
 "Gorosito, Luca Martin",60079700,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,
@@ -165,28 +165,28 @@ Nombre,SAP ID,Certification Type,Certificacion,Activity Type,OU 4,Fecha_vencimie
 "Goro, Jose Daniel",60088080,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Manufacturing Mill 1,2/25/2026,Overdue,
 "Gonzalez, Yessica Noeli",60087323,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Manufacturing Mill 2,11/8/2025,Overdue,
 "Gonzalez, Julian Martin",60082491,,00409799-OJT Cut Off Operator,On the Job Training,Manufacturing Mill 1,,Pending,
-"Gomez, Lucas Matias",60082604,,IHSHS047-GCU Work at Heights,Course,Maintenance - Siderca,2/25/2029,Pending,
+"Gomez, Lucas Matias",60082604,,IHSHS047-GCU Work at Heights,Course,Maintenance - Siderca,2/25/2029,Pending,Error LMS viejo
 "Gomez, Javier Hernan",20014117,,IHSHS002-GAU Pipe Cabin Crane - Audit,Practical Test,Manufacturing Mill 2,,Pending,
 "Gomez, Javier Hernan",20014117,,IHSHS002-OJT Pipe Cabin Crane - OJT,On the Job Training,Manufacturing Mill 2,,Pending,
 "Gomez, Carlos Armando",60082508,,IHSHS003-GAU Magnetic Crane - Audit,Practical Test,Manufacturing Mill 1,2/14/2026,Overdue,
 "Godoy, Walter Javier",20014360,,IHSHSC104-G Introduction to Radiation,Course,Steel Shop - Siderca,,Pending,
 "Godoy, Jose Maximiliano",20017346,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Manufacturing Mill 2,8/11/2018,Overdue,
 "Godoy, Jose Maximiliano",20017346,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Manufacturing Mill 2,8/11/2018,Overdue,
-"Godoy, Facundo Nicolas",60088104,,IHSHS048-GCU Working at Heights Refresh,Course,Steel Shop - Siderca,2/21/2029,Overdue,
+"Godoy, Facundo Nicolas",60088104,,IHSHS048-GCU Working at Heights Refresh,Course,Steel Shop - Siderca,2/21/2029,Overdue,Error LMS viejo
 "Gimenez, Francisco Nahuel",60097370,,IMTME028-GCU Correct Use of Tools,Course,Steel Shop - Siderca,,Pending,
 "Gimenez, Fabian Ezequiel",60062254,,IQTQAC20-GCU COURSE - Thread inspection - Couplings,Course,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,
 "Gieco, Javier Bernardo",60088146,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,"Premium, Dopeless, Coupling & Prot. Sid",1/8/2026,Overdue,
 "Gerardi, Matias Ivan",60082519,,00409799-OJT Cut Off Operator,On the Job Training,Manufacturing Mill 1,,Pending,
-"Garcia, Juan Manuel",60062965,,IHSHS047-GCU Work at Heights,Course,Steel Shop - Siderca,12/6/2028,Pending,
-"Garcia, Juan Manuel",60062965,,IHSHS048-GCU Working at Heights Refresh,Course,Steel Shop - Siderca,12/6/2028,Overdue,
+"Garcia, Juan Manuel",60062965,,IHSHS047-GCU Work at Heights,Course,Steel Shop - Siderca,12/6/2028,Pending,Error LMS viejo
+"Garcia, Juan Manuel",60062965,,IHSHS048-GCU Working at Heights Refresh,Course,Steel Shop - Siderca,12/6/2028,Overdue,Error LMS viejo
 "Garcia Babio, Paloma",60080046,,IHSHS002-GAU Pipe Cabin Crane - Audit,Practical Test,Manufacturing Mill 2,,Pending,
 "Garcia Babio, Paloma",60080046,,IHSHS002-OJT Pipe Cabin Crane - OJT,On the Job Training,Manufacturing Mill 2,,Pending,
-"Galindez, Mario Omar",20014305,NDT,IQTTS227-GCE-C Magnetic Testing L2 Certification,Certification,Manufacturing Mill 1,2/4/2029,Pending,
+"Galindez, Mario Omar",20014305,NDT,IQTTS227-GCE-C Magnetic Testing L2 Certification,Certification,Manufacturing Mill 1,2/4/2029,Pending,Error LMS viejo
 "Galazzo, Pablo Gabriel",20015420,,IPRFI002-GCU Bevel Inspection,Course,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,
 "Galazzo, Pablo Gabriel",20015420,,IQTTS025-GCU Visual and Dimensional Control of Body and Ends,Course,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,
 "Galarza, Lucas",60081819,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Maintenance - Siderca,11/7/2025,Overdue,
-"Galarza, Alberto Oscar",20013952,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,1/22/2029,Overdue,
-"Galarza, Alberto Oscar",20013952,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,1/22/2029,Overdue,
+"Galarza, Alberto Oscar",20013952,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,1/22/2029,Overdue,Error LMS viejo
+"Galarza, Alberto Oscar",20013952,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,1/22/2029,Overdue,Error LMS viejo
 "Gaiero, Andres Maximiliano",20015239,,IHSHS012-GAU Light lift Audit,Practical Test,Manufacturing Mill 2,1/27/2026,Overdue,
 "Gaiero, Andres Maximiliano",20015239,,IHSHS015-GAU Gantry Crane - Audit,Practical Test,Manufacturing Mill 2,1/24/2026,Overdue,
 "Fuentebuena, Julian",60082819,,00409764-OJT Auxiliary,On the Job Training,Steel Shop - Siderca,,Pending,
@@ -194,7 +194,7 @@ Nombre,SAP ID,Certification Type,Certificacion,Activity Type,OU 4,Fecha_vencimie
 "Fuentebuena, Julian",60082819,,IHSHS012-GAU Light lift Audit,Practical Test,Steel Shop - Siderca,,Pending,
 "Fuentebuena, Julian",60082819,,IHSHS012-OJT Light lift OJT,On the Job Training,Steel Shop - Siderca,,Pending,
 "Fuentebuena, Julian",60082819,,IHSHS031-GCU Light Lift Regional,Course,Steel Shop - Siderca,,Pending,
-"Forneron, Eduardo",60047152,,IHSHS048-GCU Working at Heights Refresh,Course,Scrap Operations - Argentina,1/20/2029,Overdue,
+"Forneron, Eduardo",60047152,,IHSHS048-GCU Working at Heights Refresh,Course,Scrap Operations - Argentina,1/20/2029,Overdue,Error LMS viejo
 "Fornelli, Alcides Gabriel",20014445,NDT,IQTTS054-GCU Ultrasonic Testing L2 ? Practical Test,Knowledge Test,Manufacturing Mill 1,11/7/2023,Overdue,
 "Fornelli, Alcides Gabriel",20014445,NDT,IQTTS235-GCE-C Ultrasonic Testing L2 Certification,Certification,Manufacturing Mill 1,11/7/2023,Pending,
 "Figueredo, Dario Javier",20012219,,00410015-OJT Straightening Operator,On the Job Training,Manufacturing Mill 2,,Pending,
@@ -203,15 +203,15 @@ Nombre,SAP ID,Certification Type,Certificacion,Activity Type,OU 4,Fecha_vencimie
 "Fernandez Ballester, Maximiliano Nestor",20012502,,IPRXX008-GCU Combustion process theory,Course,Manufacturing Mill 2,,Pending,
 "Fariña, Rosana Micaela",60088055,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,"Premium, Dopeless, Coupling & Prot. Sid",1/8/2026,Overdue,
 "Dovidonis, Ricardo Bronislao",20014051,,IHSHS002-GAU Pipe Cabin Crane - Audit,Practical Test,Manufacturing Mill 2,,Pending,
-"Diaz, Ramon Alejandro",60052771,,IHSHS048-GCU Working at Heights Refresh,Course,Scrap Operations - Argentina,11/13/2028,Overdue,
+"Diaz, Ramon Alejandro",60052771,,IHSHS048-GCU Working at Heights Refresh,Course,Scrap Operations - Argentina,11/13/2028,Overdue,Error LMS viejo
 "Diaz, Leandro Federico",60079934,,IHSHS048-GCU Working at Heights Refresh,Course,Steel Shop - Siderca,2/6/2026,Overdue,
 "Diaz, Leandro Federico",60079934,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Steel Shop - Siderca,2/6/2026,Overdue,
 "Diaz, Cristian Hernan",60062229,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Manufacturing Mill 2,2/9/2026,Overdue,
 "Diaz, Cristian Hernan",60062229,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Manufacturing Mill 2,2/9/2026,Overdue,
-"Dho, Leonardo Javier",20013571,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,10/16/2027,Overdue,
+"Dho, Leonardo Javier",20013571,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,10/16/2027,Overdue,Error LMS viejo
 "Derosso, Angel Rodrigo",20012527,,IPRFI010-GCU Threads parameter inspection (API + SemiPremium - BOX),Course,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,
 "Debetak, Pablo Ezequiel",20014297,,IQTQAC20-GCE PRACTICAL TEST - Thread inspection - Couplings,Practical Test,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,Cambio de puesto
-"De Gracia, Lucas Maximiliano",60090717,,IHSHS031-GCU Light Lift Regional,Course,Manufacturing Mill 1,8/5/2028,Pending,
+"De Gracia, Lucas Maximiliano",60090717,,IHSHS031-GCU Light Lift Regional,Course,Manufacturing Mill 1,8/5/2028,Pending,Error LMS viejo
 "De Col, Alex Norberto",20013058,,IHSHS002-GAU Pipe Cabin Crane - Audit,Practical Test,Manufacturing Mill 2,,Pending,
 "De Col, Alex Norberto",20013058,,IHSHS002-OJT Pipe Cabin Crane - OJT,On the Job Training,Manufacturing Mill 2,,Pending,
 "De Bagge, Miguel Angel",20014753,,IHSHS051-GCU Lockout Tagout Refresh,Course,Maintenance - Siderca,12/12/2025,Overdue,
@@ -220,7 +220,7 @@ Nombre,SAP ID,Certification Type,Certificacion,Activity Type,OU 4,Fecha_vencimie
 "D'Acosta, Dardo Angel Lujan",20014620,,00409760-OJT Auxiliary,On the Job Training,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,
 "D Agostino, Jorge Gabriel",20017907,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Manufacturing Mill 1,10/10/2021,Overdue,
 "Cura, Hernando Andres",20014828,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Maintenance - Siderca,9/22/2020,Overdue,
-"Cura, Hernando Andres",20014828,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,10/16/2027,Overdue,
+"Cura, Hernando Andres",20014828,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,10/16/2027,Overdue,Error LMS viejo
 "Costantini, Leandro Gabriel",60064724,,IQTQAC20-GCU COURSE - Thread inspection - Couplings,Course,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,
 "Coppa, Jonatan David",20017027,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Manufacturing Mill 2,12/27/2025,Overdue,
 "Consiglio, Diego",20011941,NDT,IQTTS081-GCU Magnetic Particle Testing L2 ? Practical Test,Knowledge Test,Manufacturing Mill 2,8/27/2024,Overdue,
@@ -236,8 +236,8 @@ Nombre,SAP ID,Certification Type,Certificacion,Activity Type,OU 4,Fecha_vencimie
 "Cochetti, Adrian Dario",20017349,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,General Services - Siderca,12/28/2025,Overdue,
 "Chico, Brandon German",60091046,,00409768-OJT Electric / Electronic L1,On the Job Training,Cold Drawn - Siderca,,Pending,
 "Chiaramello, Cynthia Macarena",60086366,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Manufacturing Mill 2,10/31/2025,Overdue,
-"Chaso, Juan Jose",60050555,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,2/25/2029,Overdue,
-"Chaso, Juan Jose",60050555,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,2/25/2029,Overdue,
+"Chaso, Juan Jose",60050555,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,2/25/2029,Overdue,Error LMS viejo
+"Chaso, Juan Jose",60050555,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,2/25/2029,Overdue,Error LMS viejo
 "Cepeda, Cristian Eduardo",20013953,,IHSHS048-GCU Working at Heights Refresh,Course,Steel Shop - Siderca,12/28/2025,Overdue,
 "Cepeda, Cristian Eduardo",20013953,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Steel Shop - Siderca,12/28/2025,Overdue,
 "Castro, Maximiliano Juan",60062985,,IHSHS048-GCU Working at Heights Refresh,Course,Steel Shop - Siderca,4/22/2021,Overdue,
@@ -254,7 +254,7 @@ Nombre,SAP ID,Certification Type,Certificacion,Activity Type,OU 4,Fecha_vencimie
 "Canales, Thomas Gabriel",60084842,,IHSHS012-GAU Light lift Audit,Practical Test,"Premium, Dopeless, Coupling & Prot. Sid",1/10/2026,Overdue,
 "Cabral, Jose Ignacio",60076655,,IQTQAC20-GCE PRACTICAL TEST - Thread inspection - Couplings,Practical Test,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,Cambio de puesto
 "Buscalia, Marcelo Fabio",20012769,,IHSHS009-GAU Aerial Lift Audit,Practical Test,Maintenance - Siderca,12/27/2025,Overdue,
-"Buscalia, Marcelo Fabio",20012769,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,1/22/2029,Overdue,
+"Buscalia, Marcelo Fabio",20012769,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,1/22/2029,Overdue,Error LMS viejo
 "Brizuela, Mauricio Julian",60082841,,00409764-OJT Auxiliary,On the Job Training,Steel Shop - Siderca,,Pending,
 "Brizuela, Mauricio Julian",60082841,,IHSHS012-GAU Light lift Audit,Practical Test,Steel Shop - Siderca,,Pending,
 "Brizuela, Mauricio Julian",60082841,,IHSHS012-OJT Light lift OJT,On the Job Training,Steel Shop - Siderca,,Pending,
@@ -293,12 +293,12 @@ Nombre,SAP ID,Certification Type,Certificacion,Activity Type,OU 4,Fecha_vencimie
 "Alvarez, Agustin Damian",60087662,,IHSHS126-GCE Lockout Tagout ? Certification,Certification,"Premium, Dopeless, Coupling & Prot. Sid",11/10/2025,Pending,
 "Almada, Carlos Sebastian",20017727,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Manufacturing Mill 1,10/3/2020,Overdue,
 "Alessi, Pablo Sebastian",20017299,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Maintenance - Siderca,1/24/2026,Overdue,
-"Alessi, Pablo Sebastian",20017299,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,9/15/2028,Overdue,
+"Alessi, Pablo Sebastian",20017299,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Maintenance - Siderca,9/15/2028,Overdue,Error LMS viejo
 "Albertarrio, Abril Ximena",60079712,,IHSHS002-GAU Pipe Cabin Crane - Audit,Practical Test,Manufacturing Mill 2,,Pending,
 "Albertarrio, Abril Ximena",60079712,,IHSHS002-OJT Pipe Cabin Crane - OJT,On the Job Training,Manufacturing Mill 2,,Pending,
 "Agnese, Matias Gabriel",20014902,,00410002-OJT Visual Inspector L1,On the Job Training,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,
 "Agnese, Matias Gabriel",20014902,,IPRFI002-GCU Bevel Inspection,Course,"Premium, Dopeless, Coupling & Prot. Sid",,Pending,
 "Acuña, Lucas Marcelo",60068669,,IHSHS001-GAU Remote Control Cranes - Audit,Practical Test,Maintenance - Siderca,10/22/2022,Overdue,
-"Acosta, Jorge Eduardo",20011778,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Manufacturing Mill 2,2/25/2029,Overdue,
+"Acosta, Jorge Eduardo",20011778,,IHSHS062-GAU Work at Heights Practical Test,Practical Test,Manufacturing Mill 2,2/25/2029,Overdue,Error LMS viejo
 "Abreu, Batista Valentin",60062313,,IHSHS012-GAU Light lift Audit,Practical Test,Manufacturing Mill 2,2/17/2026,Overdue,
 "Abreu, Batista Valentin",60062313,,IHSHS015-GAU Gantry Crane - Audit,Practical Test,Manufacturing Mill 2,1/25/2026,Overdue,
