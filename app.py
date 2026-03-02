@@ -7,6 +7,14 @@ st.set_page_config(layout="wide")
 # Leer CSV
 df = pd.read_csv("certificaciones.csv", encoding="latin-1")
 
+
+st.download_button(
+    label="📥 Descargar datos en CSV",
+    data=df.to_csv(index=False),
+    file_name="certificaciones.csv",
+    mime="text/csv"
+)
+
 # Convertir a CSV string
 csv_string = df.to_csv(index=False)
 
@@ -21,6 +29,7 @@ html_code = html_code.replace(
 )
 
 components.html(html_code, height=1000, scrolling=True)
+
 
 
 
