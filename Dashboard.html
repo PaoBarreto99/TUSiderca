@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard de Certificaciones</title>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
@@ -23,10 +24,6 @@ color:white;padding:30px;text-align:center}
 .header h1{font-size:2.5em;margin-bottom:10px}
 .header p{opacity:.9}
 .content{padding:30px}
-
-.upload-box{
-background:#f8f9fa;padding:20px;border-radius:12px;
-margin-bottom:30px;text-align:center}
 
 .stats-grid{
 display:grid;
@@ -77,12 +74,6 @@ font-weight:bold;text-transform:uppercase}
 .status-Vigente{background:#d4edda;color:#155724}
 .status-Por\ Vencer{background:#fff3cd;color:#856404}
 .status-Vencida{background:#f8d7da;color:#721c24}
-
-button{
-padding:10px 20px;margin:5px;
-border:none;border-radius:8px;background:#667eea;color:white;font-weight:bold;cursor:pointer;
-}
-button:hover{background:#764ba2;}
 </style>
 </head>
 
@@ -94,13 +85,6 @@ button:hover{background:#764ba2;}
 </div>
 
 <div class="content">
-
-<div class="upload-box">
-<input type="file" id="csvFile" accept=".csv">
-<button onclick="guardarCSV()">Guardar CSV</button>
-<button onclick="resetCSV()">Resetear CSV</button>
-<p>El archivo queda guardado hasta que subas uno nuevo o lo resetees.</p>
-</div>
 
 <div class="stats-grid">
 <div class="stat-card"><h3>Vigentes</h3><div class="number" id="vigentes">0</div></div>
@@ -146,31 +130,6 @@ button:hover{background:#764ba2;}
 let datosGlobal=[];
 let estadoChart, holdChart;
 
-function guardarCSV(){
-    const file=document.getElementById("csvFile").files[0];
-    if(!file) return alert("Seleccioná un archivo");
-    const reader=new FileReader();
-    reader.onload=e=>{
-        localStorage.setItem("certificacionesCSV",e.target.result);
-        cargarDesdeLocal();
-    };
-    reader.readAsText(file);
-}
-
-function resetCSV(){
-    localStorage.removeItem("certificacionesCSV");
-    datosGlobal=[];
-    renderizar(datosGlobal);
-    alert("CSV reseteado. Cargá uno nuevo.");
-}
-
-function cargarDesdeLocal(){
-    const csv=localStorage.getItem("certificacionesCSV");
-    if(!csv)return;
-    procesarCSV(csv);
-}
-
-// Procesar CSV con PapaParse
 function procesarCSV(csv){
     Papa.parse(csv, {
         header: true,
@@ -182,11 +141,8 @@ function procesarCSV(csv){
     });
 }
 
-// 🔹 Función para calcular estado con fechas DD/MM/YYYY
 function calcularEstado(fecha){
     if(!fecha) return "Vencida";
-
-    // Soporta DD/MM/YYYY o DD-MM-YYYY
     const partes = fecha.split(/[\/\-]/);
     let f;
     if(partes.length === 3){
@@ -194,7 +150,6 @@ function calcularEstado(fecha){
     } else {
         f = new Date(fecha);
     }
-
     const hoy = new Date();
     const dias = (f - hoy) / (1000*60*60*24);
     if(isNaN(dias)) return "Vencida";
@@ -265,7 +220,14 @@ function filtrar(){
     renderizar(filtrado);
 }
 
-window.onload=cargarDesdeLocal;
+window.onload = function() {
+    fetch("certificaciones.csv")
+        .then(response => response.text())
+        .then(csv => {
+            procesarCSV(csv);
+        });
+};
 </script>
+
 </body>
 </html>
