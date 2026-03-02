@@ -12,14 +12,17 @@ st.set_page_config(layout="wide")
 # -------------------------
 df = pd.read_csv("certificaciones.csv", encoding="latin-1")
 
+# Convertir fecha a datetime (si querés usarla después)
+df["Fecha_vencimiento"] = pd.to_datetime(df["Fecha_vencimiento"], errors="coerce")
+
 # -------------------------
 # SIDEBAR - FILTROS
 # -------------------------
 st.sidebar.header("Filtros")
 
-empresa = st.sidebar.multiselect(
-    "Empresa",
-    sorted(df["Empresa"].dropna().unique())
+certificacion = st.sidebar.multiselect(
+    "Certificación",
+    sorted(df["Certificacion"].dropna().unique())
 )
 
 estado = st.sidebar.multiselect(
@@ -27,9 +30,9 @@ estado = st.sidebar.multiselect(
     sorted(df["Estado"].dropna().unique())
 )
 
-area = st.sidebar.multiselect(
-    "Área",
-    sorted(df["Área"].dropna().unique())
+activity = st.sidebar.multiselect(
+    "Activity Type",
+    sorted(df["Activity Type"].dropna().unique())
 )
 
 # -------------------------
@@ -37,14 +40,14 @@ area = st.sidebar.multiselect(
 # -------------------------
 df_filtrado = df.copy()
 
-if empresa:
-    df_filtrado = df_filtrado[df_filtrado["Empresa"].isin(empresa)]
+if certificacion:
+    df_filtrado = df_filtrado[df_filtrado["Certificacion"].isin(certificacion)]
 
 if estado:
     df_filtrado = df_filtrado[df_filtrado["Estado"].isin(estado)]
 
-if area:
-    df_filtrado = df_filtrado[df_filtrado["Área"].isin(area)]
+if activity:
+    df_filtrado = df_filtrado[df_filtrado["Activity Type"].isin(activity)]
 
 # -------------------------
 # BOTÓN BORRAR FILTROS
