@@ -10,7 +10,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Segoe UI;background:#f4f6fa;padding:20px}
-.container{max-width:1700px;margin:auto}
+.container{max-width:1800px;margin:auto}
 
 .header{
 background:linear-gradient(135deg,#667eea,#764ba2);
@@ -20,7 +20,7 @@ border-radius:15px;margin-bottom:25px;
 
 .filters{
 background:white;padding:15px;border-radius:12px;
-margin-bottom:25px;display:flex;gap:15px;flex-wrap:wrap;
+margin-bottom:25px;display:flex;gap:10px;flex-wrap:wrap;
 box-shadow:0 5px 15px rgba(0,0,0,.05);
 }
 
@@ -49,15 +49,15 @@ color:white;padding:20px;border-radius:12px;text-align:center;
 .estado-vencida{color:#e74c3c;font-weight:bold}
 .estado-porvencer{color:#f39c12;font-weight:bold}
 
+.chart-container{
+background:white;padding:20px;border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,.05);margin-bottom:30px;
+}
+
 table{width:100%;border-collapse:collapse;background:white}
 thead{background:#667eea;color:white}
 th,td{padding:8px;border-bottom:1px solid #eee;font-size:13px}
 tbody tr:hover{background:#f5f5f5}
-
-.chart-container{
-background:white;padding:15px;border-radius:12px;
-box-shadow:0 5px 15px rgba(0,0,0,.05);margin-bottom:30px;
-}
 </style>
 </head>
 
@@ -66,12 +66,14 @@ box-shadow:0 5px 15px rgba(0,0,0,.05);margin-bottom:30px;
 
 <div class="header">
 <h1>📋 Dashboard de Certificaciones</h1>
-<p>Estado calculado dinámicamente</p>
+<p>Estado calculado automáticamente según fecha</p>
 </div>
 
 <div class="filters">
-<input type="text" id="filtroNombre" placeholder="Nombre" oninput="aplicarFiltros()">
-<input type="text" id="filtroSAP" placeholder="SAP ID" oninput="aplicarFiltros()">
+<input type="text" id="fNombre" placeholder="Nombre" oninput="aplicarFiltros()">
+<input type="text" id="fSAP" placeholder="SAP ID" oninput="aplicarFiltros()">
+<select id="fActivity" onchange="aplicarFiltros()"></select>
+<select id="fCertification" onchange="aplicarFiltros()"></select>
 <button onclick="resetTotal()">Reset</button>
 </div>
 
@@ -79,6 +81,7 @@ box-shadow:0 5px 15px rgba(0,0,0,.05);margin-bottom:30px;
 <div class="stat-card"><h3>Vigentes</h3><div class="number" id="vigentes">0</div></div>
 <div class="stat-card"><h3>Por Vencer</h3><div class="number" id="porVencer">0</div></div>
 <div class="stat-card"><h3>Vencidas</h3><div class="number" id="vencidas">0</div></div>
+<div class="stat-card"><h3>On Hold</h3><div class="number" id="onhold">0</div></div>
 <div class="stat-card"><h3>Total</h3><div class="number" id="total">0</div></div>
 </div>
 
@@ -86,11 +89,17 @@ box-shadow:0 5px 15px rgba(0,0,0,.05);margin-bottom:30px;
 <canvas id="ouChart"></canvas>
 </div>
 
+<div class="chart-container">
+<canvas id="onHoldChart"></canvas>
+</div>
+
 <table>
 <thead>
 <tr>
 <th>Nombre</th>
 <th>SAP ID</th>
+<th>Activity Type</th>
+<th>Certification Type</th>
 <th>Fecha_vencimiento</th>
 <th>Estado</th>
 </tr>
@@ -103,7 +112,7 @@ box-shadow:0 5px 15px rgba(0,0,0,.05);margin-bottom:30px;
 <script>
 
 let datosGlobal=[];
-let ouChart;
+let ouChart,onHoldChart;
 
 function procesarCSV(csv){
 Papa.parse(csv,{
@@ -111,6 +120,7 @@ header:true,
 skipEmptyLines:true,
 complete:function(results){
 datosGlobal=results.data;
+cargarFiltros();
 aplicarFiltros();
 }
 });
@@ -118,7 +128,6 @@ aplicarFiltros();
 
 function parseFecha(fechaStr){
 if(!fechaStr) return null;
-
 if(fechaStr.includes("/")){
 let p=fechaStr.split("/");
 return new Date(p[2],p[1]-1,p[0]);
@@ -140,69 +149,107 @@ if(diff<=90) return "Por Vencer";
 return "Vigente";
 }
 
+function cargarFiltros(){
+const act=[...new Set(datosGlobal.map(d=>d["Activity Type"]).filter(Boolean))];
+const cert=[...new Set(datosGlobal.map(d=>d["Certification Type"]).filter(Boolean))];
+
+const fAct=document.getElementById("fActivity");
+const fCert=document.getElementById("fCertification");
+
+fAct.innerHTML='<option value="">Activity Type</option>';
+fCert.innerHTML='<option value="">Certification Type</option>';
+
+act.forEach(a=>fAct.innerHTML+=`<option value="${a}">${a}</option>`);
+cert.forEach(c=>fCert.innerHTML+=`<option value="${c}">${c}</option>`);
+}
+
 function aplicarFiltros(){
-const nombre=document.getElementById("filtroNombre").value.toLowerCase();
-const sap=document.getElementById("filtroSAP").value.toLowerCase();
+
+const nombre=document.getElementById("fNombre").value.toLowerCase();
+const sap=document.getElementById("fSAP").value.toLowerCase();
+const act=document.getElementById("fActivity").value;
+const cert=document.getElementById("fCertification").value;
 
 const filtrados=datosGlobal.filter(d=>{
-return (!nombre|| (d["Nombre"]||"").toLowerCase().includes(nombre))
-&&(!sap|| (d["SAP ID"]||"").toLowerCase().includes(sap));
+return (!nombre||(d["Nombre"]||"").toLowerCase().includes(nombre))
+&&(!sap||(d["SAP ID"]||"").toLowerCase().includes(sap))
+&&(!act||d["Activity Type"]===act)
+&&(!cert||d["Certification Type"]===cert);
 });
 
 renderizar(filtrados);
 }
 
 function resetTotal(){
-document.getElementById("filtroNombre").value="";
-document.getElementById("filtroSAP").value="";
+document.querySelectorAll(".filters input, .filters select")
+.forEach(el=>el.value="");
 renderizar(datosGlobal);
 }
 
 function renderizar(datos){
 
-let vig=0,pv=0,ven=0;
+let vig=0,pv=0,ven=0,onhold=0;
 let ouCount={};
+let onHoldCount={};
+
 const tbody=document.getElementById("tableBody");
 tbody.innerHTML="";
 
 datos.forEach(d=>{
-const fechaOriginal=d["Fecha_vencimiento"]||"";
-const est=calcularEstado(fechaOriginal);
 
-if(est==="Vigente")vig++;
-if(est==="Por Vencer")pv++;
-if(est==="Vencida")ven++;
+const fecha=d["Fecha_vencimiento"]||"";
+const estado=d["Estado"]||"";
+let estFinal=calcularEstado(fecha);
 
-if(est!=="Vigente"){
-const ou=d["OU 4"]||"Sin OU";
-ouCount[ou]=(ouCount[ou]||0)+1;
+if(estado.toLowerCase()==="on hold"){
+estFinal="On Hold";
+onhold++;
+onHoldCount[d["OU 4"]]=(onHoldCount[d["OU 4"]]||0)+1;
+}else{
+if(estFinal==="Vigente")vig++;
+if(estFinal==="Por Vencer")pv++;
+if(estFinal==="Vencida")ven++;
+
+if(estFinal!=="Vigente"){
+ouCount[d["OU 4"]]=(ouCount[d["OU 4"]]||0)+1;
+}
 }
 
 let clase="";
-if(est==="Vigente")clase="estado-vigente";
-if(est==="Vencida")clase="estado-vencida";
-if(est==="Por Vencer")clase="estado-porvencer";
+if(estFinal==="Vigente")clase="estado-vigente";
+if(estFinal==="Vencida")clase="estado-vencida";
+if(estFinal==="Por Vencer")clase="estado-porvencer";
 
 tbody.innerHTML+=`
 <tr>
 <td>${d["Nombre"]||""}</td>
 <td>${d["SAP ID"]||""}</td>
-<td>${fechaOriginal}</td>
-<td class="${clase}">${est}</td>
+<td>${d["Activity Type"]||""}</td>
+<td>${d["Certification Type"]||""}</td>
+<td>${fecha}</td>
+<td class="${clase}">${estFinal}</td>
 </tr>`;
 });
 
 document.getElementById("vigentes").textContent=vig;
 document.getElementById("porVencer").textContent=pv;
 document.getElementById("vencidas").textContent=ven;
+document.getElementById("onhold").textContent=onhold;
 document.getElementById("total").textContent=datos.length;
 
-const sorted=Object.entries(ouCount).sort((a,b)=>b[1]-a[1]);
-
+const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1]);
 if(ouChart)ouChart.destroy();
 ouChart=new Chart(document.getElementById("ouChart"),{
 type:"bar",
-data:{labels:sorted.map(e=>e[0]),datasets:[{data:sorted.map(e=>e[1])}]},
+data:{labels:sortedOU.map(e=>e[0]),datasets:[{data:sortedOU.map(e=>e[1])}]},
+options:{indexAxis:'y'}
+});
+
+const sortedOH=Object.entries(onHoldCount).sort((a,b)=>b[1]-a[1]);
+if(onHoldChart)onHoldChart.destroy();
+onHoldChart=new Chart(document.getElementById("onHoldChart"),{
+type:"bar",
+data:{labels:sortedOH.map(e=>e[0]),datasets:[{data:sortedOH.map(e=>e[1])}]},
 options:{indexAxis:'y'}
 });
 }
