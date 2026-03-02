@@ -12,6 +12,15 @@
 body{font-family:'Segoe UI',Tahoma,Verdana,sans-serif;background:#f4f6fa;padding:20px}
 .container{max-width:1600px;margin:auto}
 
+.header{
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+color:white;
+padding:25px;
+border-radius:12px;
+margin-bottom:25px;
+text-align:center;
+}
+
 .filters{
 background:white;
 padding:15px;
@@ -106,6 +115,10 @@ box-shadow:0 5px 15px rgba(0,0,0,.05);
 <body>
 <div class="container">
 
+<div class="header">
+<h1>Seguimiento Mínimos Requeridos</h1>
+</div>
+
 <div class="filters">
 <input type="text" id="filtroNombre" placeholder="Apellido y Nombre">
 <input type="text" id="filtroSAP" placeholder="SAP ID">
@@ -134,7 +147,7 @@ box-shadow:0 5px 15px rgba(0,0,0,.05);
 <canvas id="ouChart"></canvas>
 </div>
 <div class="chart-container">
-<h3>Certificaciones On Hold</h3>
+<h3>On Hold</h3>
 <canvas id="holdChart"></canvas>
 </div>
 </div>
@@ -284,23 +297,11 @@ ouChart=new Chart(document.getElementById("ouChart"),{
 type:"bar",
 data:{labels:ouLabels,datasets:[{data:ouValues}]},
 options:{
-indexAxis:'y',
-onClick:(evt,elements)=>{
-if(elements.length>0){
-const ou=ouLabels[elements[0].index];
-if(filtroGrafico===ou){
-filtroGrafico=null;
-renderizar(datosGlobal);
-}else{
-filtroGrafico=ou;
-renderizar(datosGlobal.filter(d=>d["OU 4"]===ou));
-}
-}
-}
+indexAxis:'y'
 }
 });
 
-/* ORDENAR HOLD */
+/* ORDENAR HOLD (VERTICAL) */
 const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1]);
 const holdLabels=sortedHold.map(e=>e[0]);
 const holdValues=sortedHold.map(e=>e[1]);
@@ -309,22 +310,7 @@ if(holdChart) holdChart.destroy();
 
 holdChart=new Chart(document.getElementById("holdChart"),{
 type:"bar",
-data:{labels:holdLabels,datasets:[{data:holdValues}]},
-options:{
-indexAxis:'y',
-onClick:(evt,elements)=>{
-if(elements.length>0){
-const hold=holdLabels[elements[0].index];
-if(filtroGrafico===hold){
-filtroGrafico=null;
-renderizar(datosGlobal);
-}else{
-filtroGrafico=hold;
-renderizar(datosGlobal.filter(d=>d.Comentarios===hold));
-}
-}
-}
-}
+data:{labels:holdLabels,datasets:[{data:holdValues}]}
 });
 
 }
