@@ -129,14 +129,14 @@ box-shadow:0 5px 15px rgba(0,0,0,.05);
 </div>
 
 <div class="filters">
-<input type="text" id="filtroNombre" placeholder="Nombre">
-<input type="text" id="filtroSAP" placeholder="SAP ID">
+<input type="text" id="filtroNombre" placeholder="Nombre" oninput="aplicarFiltros()">
+<input type="text" id="filtroSAP" placeholder="SAP ID" oninput="aplicarFiltros()">
 
-<select id="filtroActivity">
+<select id="filtroActivity" onchange="aplicarFiltros()">
 <option value="">Activity Type</option>
 </select>
 
-<select id="filtroCertType">
+<select id="filtroCertType" onchange="aplicarFiltros()">
 <option value="">Certification Type</option>
 </select>
 
@@ -321,3 +321,4 @@ procesarCSV(window.csvData);
 
 </body>
 </html>
+
