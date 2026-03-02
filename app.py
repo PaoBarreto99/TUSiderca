@@ -2,44 +2,62 @@ import streamlit as st
 import pandas as pd
 import streamlit.components.v1 as components
 
-# -------------------------
-# CONFIGURACIÓN
-# -------------------------
 st.set_page_config(layout="wide")
-
-# -------------------------
-# ESTILO COMPACTO
-# -------------------------
-st.markdown("""
-<style>
-div[data-baseweb="select"] {
-    font-size: 13px;
-}
-div[data-baseweb="input"] {
-    font-size: 13px;
-}
-</style>
-""", unsafe_allow_html=True)
 
 # -------------------------
 # CARGA DE DATOS
 # -------------------------
 df = pd.read_csv("certificaciones.csv", encoding="latin-1")
-df["Fecha_vencimiento"] = pd.to_datetime(df["Fecha_vencimiento"], errors="coerce")
+
+# Unificar nombres de columnas
+df.rename(columns={
+    "Fecha_vencimiento": "Fecha_Vencimiento",
+    "Fecha_certificacion": "Fecha_Certificacion"
+}, inplace=True)
+
+df["Fecha_Vencimiento"] = pd.to_datetime(df["Fecha_Vencimiento"], errors="coerce")
 
 # -------------------------
-# INICIALIZAR FILTROS
+# FILTROS
 # -------------------------
-if "filtros_activos" not in st.session_state:
-    st.session_state.filtros_activos = False
+col1, col2, col3, col4, col5 = st.columns([1,1,1,1,1.2])
+
+with col1:
+    filtro_cert = st.multiselect("", sorted(df["Certificacion"].dropna().unique()), placeholder="Certificación")
+
+with col2:
+    filtro_estado = st.multiselect("", ["Vigente","Por Vencer","Vencida"], placeholder="Estado")
+
+with col3:
+    filtro_activity = st.multiselect("", sorted(df["Activity Type"].dropna().unique()), placeholder="Activity Type")
+
+with col4:
+    fecha_min = df["Fecha_Vencimiento"].min()
+    fecha_max = df["Fecha_Vencimiento"].max()
+    filtro_fecha = st.date_input("", value=(fecha_min, fecha_max))
+
+with col5:
+    borrar = st.button("Borrar filtros", use_container_width=True)
 
 # -------------------------
-# APLICAR FILTROS (VACÍO AL INICIO)
+# APLICAR FILTROS
 # -------------------------
 df_filtrado = df.copy()
 
+if filtro_cert:
+    df_filtrado = df_filtrado[df_filtrado["Certificacion"].isin(filtro_cert)]
+
+if filtro_activity:
+    df_filtrado = df_filtrado[df_filtrado["Activity Type"].isin(filtro_activity)]
+
+if isinstance(filtro_fecha, tuple):
+    df_filtrado = df_filtrado[
+        (df_filtrado["Fecha_Vencimiento"] >= pd.to_datetime(filtro_fecha[0])) &
+        (df_filtrado["Fecha_Vencimiento"] <= pd.to_datetime(filtro_fecha[1]))
+    ]
+
 # -------------------------
-# DASHBOARD ARRIBA
+# DASHBOARD
 # -------------------------
 csv_string = df_filtrado.to_csv(index=False)
 
@@ -53,84 +71,8 @@ html_code = html_code.replace(
 
 components.html(html_code, height=950, scrolling=True)
 
-st.markdown("---")
-st.markdown("#### Filtros")
-
 # -------------------------
-# FILTROS COMPACTOS
-# -------------------------
-col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1.2])
-
-with col1:
-    filtro_cert = st.multiselect(
-        "",
-        sorted(df["Certificacion"].dropna().unique()),
-        placeholder="Certificación"
-    )
-
-with col2:
-    filtro_estado = st.multiselect(
-        "",
-        sorted(df["Estado"].dropna().unique()),
-        placeholder="Estado"
-    )
-
-with col3:
-    filtro_activity = st.multiselect(
-        "",
-        sorted(df["Activity Type"].dropna().unique()),
-        placeholder="Activity Type"
-    )
-
-with col4:
-    fecha_min = df["Fecha_vencimiento"].min()
-    fecha_max = df["Fecha_vencimiento"].max()
-
-    filtro_fecha = st.date_input(
-        "",
-        value=(fecha_min, fecha_max)
-    )
-
-with col5:
-    col_btn1, col_btn2 = st.columns([1, 1])
-
-    with col_btn1:
-        exportar = st.download_button(
-            "Exportar datos",
-            df_filtrado.to_csv(index=False),
-            "certificaciones.csv",
-            "text/csv",
-            use_container_width=True
-        )
-
-    with col_btn2:
-        borrar = st.button(
-            "Borrar filtros",
-            use_container_width=True
-        )
-
-# -------------------------
-# APLICAR FILTROS DESPUÉS DE INPUTS
-# -------------------------
-df_filtrado = df.copy()
-
-if filtro_cert:
-    df_filtrado = df_filtrado[df_filtrado["Certificacion"].isin(filtro_cert)]
-
-if filtro_estado:
-    df_filtrado = df_filtrado[df_filtrado["Estado"].isin(filtro_estado)]
-
-if filtro_activity:
-    df_filtrado = df_filtrado[df_filtrado["Activity Type"].isin(filtro_activity)]
-
-if isinstance(filtro_fecha, tuple) and len(filtro_fecha) == 2:
-    df_filtrado = df_filtrado[
-        (df_filtrado["Fecha_vencimiento"] >= pd.to_datetime(filtro_fecha[0])) &
-        (df_filtrado["Fecha_vencimiento"] <= pd.to_datetime(filtro_fecha[1]))
-    ]
-
-# -------------------------
-# BORRAR FILTROS
+# BORRAR
 # -------------------------
 if borrar:
     st.rerun()
