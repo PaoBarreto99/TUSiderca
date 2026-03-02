@@ -16,3 +16,4 @@ with open("Dashboard.html", "r", encoding="utf-8") as f:
 components.html(html_code, height=800, scrolling=True)
 
 
+
