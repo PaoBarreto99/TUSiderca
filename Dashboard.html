@@ -86,7 +86,6 @@ th,td{padding:8px;border-bottom:1px solid #eee;font-size:13px}
 <th>Certificacion</th>
 <th>Activity Type</th>
 <th>OU 4</th>
-<th>Fecha Vencimiento</th>
 <th>Estado</th>
 <th>Comentarios</th>
 </tr>
@@ -103,11 +102,6 @@ let ouChart,holdChart;
 let filtroOU=null;
 let filtroHold=null;
 
-function limpiarValor(v){
-if(v===undefined || v===null) return "";
-return v.toString().trim().replace(/^"|"$/g,"");
-}
-
 function procesarCSV(csv){
 
 csv = csv.replace(/^\uFEFF/, "");
@@ -115,19 +109,12 @@ csv = csv.replace(/^\uFEFF/, "");
 Papa.parse(csv,{
 header:true,
 skipEmptyLines:true,
-transformHeader: h => h.trim(),
 complete:function(results){
 
-datosGlobal = results.data.map(row=>{
-let limpio={};
-Object.keys(row).forEach(k=>{
-limpio[k.trim()] = limpiarValor(row[k]);
-});
-return limpio;
-});
-
+datosGlobal = results.data;
 cargarOpciones();
 renderizar(datosGlobal);
+
 }
 });
 }
@@ -206,8 +193,7 @@ tbody.innerHTML="";
 
 datos.forEach(d=>{
 
-const fechaOriginal = limpiarValor(d["Fecha_vencimiento"]);
-const estado = calcularEstado(fechaOriginal);
+const estado=calcularEstado(d["Fecha_vencimiento"]);
 
 if(estado==="Vigente")vig++;
 if(estado==="Por Vencer")pv++;
@@ -229,13 +215,12 @@ if(estado==="Vencida")clase="estado-vencida";
 
 tbody.innerHTML+=`
 <tr>
-<td>${d.Nombre}</td>
-<td>${d["SAP ID"]}</td>
-<td>${d["Certification Type"]}</td>
-<td>${d.Certificacion}</td>
-<td>${d["Activity Type"]}</td>
-<td>${d["OU 4"]}</td>
-<td>${fechaOriginal}</td>
+<td>${d.Nombre||""}</td>
+<td>${d["SAP ID"]||""}</td>
+<td>${d["Certification Type"]||""}</td>
+<td>${d.Certificacion||""}</td>
+<td>${d["Activity Type"]||""}</td>
+<td>${d["OU 4"]||""}</td>
 <td class="${clase}">${estado}</td>
 <td>${d.Comentarios||""}</td>
 </tr>`;
