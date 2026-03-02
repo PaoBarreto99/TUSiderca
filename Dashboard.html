@@ -10,8 +10,33 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Verdana,sans-serif;background:#f4f6fa;padding:20px}
-
 .container{max-width:1600px;margin:auto}
+
+.filters{
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:25px;
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+box-shadow:0 5px 15px rgba(0,0,0,.05);
+}
+
+.filters input,.filters select{
+padding:8px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+.filters button{
+padding:8px 15px;
+border:none;
+border-radius:8px;
+background:#667eea;
+color:white;
+cursor:pointer;
+}
 
 .stats-grid{
 display:grid;
@@ -31,32 +56,6 @@ text-align:center;
 .stat-card .number{
 font-size:2em;
 font-weight:bold;
-}
-
-.filters{
-background:white;
-padding:15px;
-border-radius:12px;
-margin-bottom:25px;
-display:flex;
-gap:15px;
-flex-wrap:wrap;
-box-shadow:0 5px 15px rgba(0,0,0,.05);
-}
-
-.filters input, .filters select{
-padding:8px;
-border-radius:8px;
-border:1px solid #ccc;
-}
-
-.filters button{
-padding:8px 15px;
-border:none;
-border-radius:8px;
-background:#667eea;
-color:white;
-cursor:pointer;
 }
 
 .charts-grid{
@@ -119,7 +118,7 @@ box-shadow:0 5px 15px rgba(0,0,0,.05);
 <option value="">Certification Type</option>
 </select>
 
-<button onclick="limpiarFiltros()">Reset</button>
+<button onclick="resetTotal()">Reset</button>
 </div>
 
 <div class="stats-grid">
@@ -163,7 +162,8 @@ box-shadow:0 5px 15px rgba(0,0,0,.05);
 
 <script>
 let datosGlobal=[];
-let ouChart, holdChart;
+let ouChart,holdChart;
+let filtroGrafico=null;
 
 function procesarCSV(csv){
 Papa.parse(csv,{
@@ -172,7 +172,7 @@ skipEmptyLines:true,
 complete:function(results){
 datosGlobal=results.data;
 cargarOpciones();
-aplicarFiltros();
+renderizar(datosGlobal);
 }
 });
 }
@@ -194,14 +194,9 @@ document.getElementById("filtroCertType").innerHTML+=`<option>${c}</option>`;
 });
 }
 
-function parseFecha(f){
-const d=new Date(f);
-return isNaN(d)?null:d;
-}
-
 function estado(f){
-const fecha=parseFecha(f);
-if(!fecha) return "Vencida";
+const fecha=new Date(f);
+if(isNaN(fecha)) return "Vencida";
 const hoy=new Date();
 const dias=(fecha-hoy)/(1000*60*60*24);
 if(dias<0) return "Vencida";
@@ -210,6 +205,8 @@ return "Vigente";
 }
 
 function aplicarFiltros(){
+if(filtroGrafico) return;
+
 const nombre=document.getElementById("filtroNombre").value.toLowerCase();
 const sap=document.getElementById("filtroSAP").value.toLowerCase();
 const act=document.getElementById("filtroActivity").value;
@@ -225,7 +222,8 @@ return (!nombre|| (d.Nombre||"").toLowerCase().includes(nombre))
 renderizar(filtrados);
 }
 
-function limpiarFiltros(){
+function resetTotal(){
+filtroGrafico=null;
 document.getElementById("filtroNombre").value="";
 document.getElementById("filtroSAP").value="";
 document.getElementById("filtroActivity").value="";
@@ -234,6 +232,7 @@ renderizar(datosGlobal);
 }
 
 function renderizar(datos){
+
 let vig=0,pv=0,ven=0;
 let ouCount={},holdCount={};
 const tbody=document.getElementById("tableBody");
@@ -241,6 +240,7 @@ tbody.innerHTML="";
 
 datos.forEach(d=>{
 const est=estado(d["Fecha_Vencimiento"]);
+
 if(est==="Vigente")vig++;
 if(est==="Por Vencer")pv++;
 if(est==="Vencida")ven++;
@@ -274,18 +274,50 @@ document.getElementById("vencidas").textContent=ven;
 document.getElementById("total").textContent=datos.length;
 
 if(ouChart) ouChart.destroy();
+const ouLabels=Object.keys(ouCount);
+
 ouChart=new Chart(document.getElementById("ouChart"),{
 type:"bar",
-data:{labels:Object.keys(ouCount),datasets:[{data:Object.values(ouCount)}]},
-options:{}
+data:{labels:ouLabels,datasets:[{data:Object.values(ouCount)}]},
+options:{
+indexAxis:'y',
+onClick:(evt,elements)=>{
+if(elements.length>0){
+const ou=ouLabels[elements[0].index];
+if(filtroGrafico===ou){
+filtroGrafico=null;
+renderizar(datosGlobal);
+}else{
+filtroGrafico=ou;
+renderizar(datosGlobal.filter(d=>d["OU 4"]===ou));
+}
+}
+}
+}
 });
 
 if(holdChart) holdChart.destroy();
+const holdLabels=Object.keys(holdCount);
+
 holdChart=new Chart(document.getElementById("holdChart"),{
 type:"bar",
-data:{labels:Object.keys(holdCount),datasets:[{data:Object.values(holdCount)}]},
-options:{}
+data:{labels:holdLabels,datasets:[{data:Object.values(holdCount)}]},
+options:{
+onClick:(evt,elements)=>{
+if(elements.length>0){
+const hold=holdLabels[elements[0].index];
+if(filtroGrafico===hold){
+filtroGrafico=null;
+renderizar(datosGlobal);
+}else{
+filtroGrafico=hold;
+renderizar(datosGlobal.filter(d=>d.Comentarios===hold));
+}
+}
+}
+}
 });
+
 }
 
 document.addEventListener("input", aplicarFiltros);
