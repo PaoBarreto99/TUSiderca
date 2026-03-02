@@ -221,13 +221,12 @@ function filtrar(){
 }
 
 window.onload = function() {
-    fetch("certificaciones.csv")
-        .then(response => response.text())
-        .then(csv => {
-            procesarCSV(csv);
-        });
+    if (window.csvData) {
+        procesarCSV(window.csvData);
+    }
 };
 </script>
 
 </body>
 </html>
+
