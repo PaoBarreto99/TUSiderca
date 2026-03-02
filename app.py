@@ -7,11 +7,10 @@ st.set_page_config(layout="wide")
 # --- Leer CSV ---
 df = pd.read_csv("certificaciones.csv", encoding="latin-1")
 
-# --- Convertir columnas de fecha ---
+# --- Convertir columnas de fecha a DD/MM/YYYY ---
 for col in df.columns:
-    if "fecha" in col.lower():  # detecta columnas que contengan "fecha"
-        # Convierte a datetime y luego a string YYYY-MM-DD
-        df[col] = pd.to_datetime(df[col], dayfirst=True, errors='coerce').dt.strftime("%Y-%m-%d")
+    if "fecha" in col.lower():
+        df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime("%d/%m/%Y")
 
 # --- Convertir a CSV string ---
 csv_string = df.to_csv(index=False)
@@ -27,4 +26,4 @@ html_code = html_code.replace(
 )
 
 # --- Mostrar en Streamlit ---
-components.html(html_code, height=1000, scrolling=True)
+components.html(html_code, height=1200, scrolling=True)
