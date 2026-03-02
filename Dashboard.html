@@ -2,89 +2,185 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Dashboard</title>
+<title>Dashboard Certificaciones</title>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{margin:0;font-family:Segoe UI;background:#eef2f7;}
-.content{padding:30px;}
+body{
+    margin:0;
+    font-family:Segoe UI, Arial, sans-serif;
+    background:#eef2f7;
+}
 
+.content{
+    padding:30px;
+}
+
+/* ===== KPIs ===== */
 .stats-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:20px;margin-bottom:30px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:20px;
+    margin-bottom:30px;
 }
 
 .card{
-background:white;padding:20px;border-radius:14px;
-box-shadow:0 4px 12px rgba(0,0,0,0.08);text-align:center;
+    background:white;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    text-align:center;
 }
 
+.card h3{
+    margin:0;
+    font-size:14px;
+    color:#6c757d;
+}
+
+.card p{
+    margin:10px 0 0;
+    font-size:26px;
+    font-weight:bold;
+    color:#1f2937;
+}
+
+/* ===== GRÁFICOS ===== */
 .charts-grid{
-display:grid;grid-template-columns:1fr 1fr;
-gap:30px;margin-bottom:30px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:30px;
+    margin-bottom:30px;
 }
 
 .chart-box{
-background:white;padding:20px;border-radius:14px;
-box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    background:white;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
 
+/* ===== FILTROS STICKY ===== */
 .filters-bar{
-background:white;padding:15px;border-radius:14px;
-box-shadow:0 4px 12px rgba(0,0,0,0.08);
-margin-bottom:20px;display:flex;gap:15px;flex-wrap:wrap;
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:#ffffff;
+    padding:15px;
+    border-radius:14px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom:20px;
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
 }
 
 .filters-bar input{
-padding:8px 12px;border-radius:8px;
-border:1px solid #ccc;font-size:13px;
+    padding:8px 12px;
+    border-radius:8px;
+    border:1px solid #d1d5db;
+    font-size:13px;
+    min-width:160px;
 }
 
 .export-btn{
-background:#1f2937;color:white;
-padding:8px 18px;border:none;
-border-radius:8px;cursor:pointer;
+    background:#1f2937;
+    color:white;
+    padding:8px 18px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:500;
 }
 
+.export-btn:hover{
+    background:#111827;
+}
+
+/* ===== TABLA CON SCROLL INDEPENDIENTE ===== */
 .table-container{
-background:white;padding:20px;border-radius:14px;
-box-shadow:0 4px 12px rgba(0,0,0,0.08);
-max-height:400px;overflow:auto;
+    background:white;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    max-height:420px;
+    overflow-y:auto;
+    overflow-x:auto;
 }
 
-table{width:100%;border-collapse:collapse;}
-th{background:#1f2937;color:white;padding:10px;}
-td{padding:8px;border-bottom:1px solid #e5e7eb;}
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:#1f2937;
+    color:white;
+    padding:10px;
+    font-size:13px;
+    position:sticky;
+    top:0;
+}
+
+td{
+    padding:8px;
+    border-bottom:1px solid #e5e7eb;
+    font-size:13px;
+}
+
+tr:hover{
+    background:#f3f4f6;
+}
 </style>
 </head>
 
 <body>
 <div class="content">
 
+<!-- ===== KPIs ===== -->
 <div class="stats-grid">
-<div class="card"><h3>Total</h3><p>{{ total_registros }}</p></div>
-<div class="card"><h3>Vencidos</h3><p>{{ vencidos }}</p></div>
-<div class="card"><h3>Por vencer</h3><p>{{ por_vencer }}</p></div>
+    <div class="card">
+        <h3>Total Registros</h3>
+        <p>{{ total_registros }}</p>
+    </div>
+    <div class="card">
+        <h3>Vencidos</h3>
+        <p>{{ vencidos }}</p>
+    </div>
+    <div class="card">
+        <h3>Por vencer</h3>
+        <p>{{ por_vencer }}</p>
+    </div>
 </div>
 
+<!-- ===== GRÁFICOS ===== -->
 <div class="charts-grid">
-<div class="chart-box"><canvas id="estadoChart"></canvas></div>
-<div class="chart-box"><canvas id="certChart"></canvas></div>
+    <div class="chart-box">
+        <canvas id="estadoChart"></canvas>
+    </div>
+    <div class="chart-box">
+        <canvas id="certChart"></canvas>
+    </div>
 </div>
 
+<!-- ===== FILTROS ===== -->
 <div class="filters-bar">
-<input type="text" placeholder="Nombre..." onkeyup="filtrarTabla(0)">
-<input type="text" placeholder="SAP..." onkeyup="filtrarTabla(1)">
-<button class="export-btn" onclick="exportarCSV()">Exportar datos</button>
+    <input type="text" placeholder="Nombre..." onkeyup="filtrarTabla(0)">
+    <input type="text" placeholder="SAP ID..." onkeyup="filtrarTabla(1)">
+    <input type="text" placeholder="Certificación..." onkeyup="filtrarTabla(2)">
+    <input type="text" placeholder="Activity..." onkeyup="filtrarTabla(3)">
+    <input type="text" placeholder="Estado..." onkeyup="filtrarTabla(6)">
+    <button class="export-btn" onclick="exportarCSV()">Exportar datos</button>
 </div>
 
+<!-- ===== TABLA ===== -->
 <div class="table-container">
 <table>
 <thead>
 <tr>
 <th>Nombre</th>
-<th>SAP</th>
+<th>SAP ID</th>
 <th>Certificación</th>
 <th>Activity</th>
 <th>Inicio</th>
@@ -95,9 +191,13 @@ td{padding:8px;border-bottom:1px solid #e5e7eb;}
 <tbody id="tableBody">
 {% for row in tabla %}
 <tr>
-{% for col in row %}
-<td>{{ col }}</td>
-{% endfor %}
+<td>{{ row[0] }}</td>
+<td>{{ row[1] }}</td>
+<td>{{ row[2] }}</td>
+<td>{{ row[3] }}</td>
+<td>{{ row[4] }}</td>
+<td>{{ row[5] }}</td>
+<td>{{ row[6] }}</td>
 </tr>
 {% endfor %}
 </tbody>
@@ -107,43 +207,61 @@ td{padding:8px;border-bottom:1px solid #e5e7eb;}
 </div>
 
 <script>
+/* ===== FILTRO POR COLUMNA ===== */
 function filtrarTabla(colIndex){
-const input = event.target.value.toLowerCase();
-const filas = document.querySelectorAll("#tableBody tr");
+    const input = event.target.value.toLowerCase();
+    const filas = document.querySelectorAll("#tableBody tr");
 
-filas.forEach(fila=>{
-const celda = fila.children[colIndex];
-if(!celda) return;
-fila.style.display = celda.textContent.toLowerCase().includes(input) ? "" : "none";
-});
+    filas.forEach(fila=>{
+        const celda = fila.children[colIndex];
+        if(!celda) return;
+
+        const texto = celda.textContent.toLowerCase();
+        fila.style.display = texto.includes(input) ? "" : "none";
+    });
 }
 
+/* ===== EXPORTAR CSV ===== */
 function exportarCSV(){
-let csv=[];
-document.querySelectorAll("table tr").forEach(row=>{
-let cols=row.querySelectorAll("td,th");
-let fila=[];
-cols.forEach(col=>fila.push(col.innerText));
-csv.push(fila.join(","));
-});
-let blob=new Blob([csv.join("\n")],{type:"text/csv"});
-let url=window.URL.createObjectURL(blob);
-let a=document.createElement("a");
-a.href=url;
-a.download="datos.csv";
-a.click();
+    let csv = [];
+    const filas = document.querySelectorAll("table tr");
+
+    filas.forEach(row=>{
+        let cols = row.querySelectorAll("td, th");
+        let fila = [];
+        cols.forEach(col=>fila.push(col.innerText));
+        csv.push(fila.join(","));
+    });
+
+    const blob = new Blob([csv.join("\n")], {type:"text/csv"});
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "datos_dashboard.csv";
+    a.click();
 }
 
-new Chart(document.getElementById("estadoChart"),{
-type:"bar",
-data:{labels:{{ labels_estado|safe }},
-datasets:[{data:{{ data_estado|safe }} }]}
+/* ===== GRÁFICOS ===== */
+const estadoChart = new Chart(document.getElementById("estadoChart"),{
+    type:"bar",
+    data:{
+        labels: {{ labels_estado|safe }},
+        datasets:[{
+            label:"Cantidad",
+            data: {{ data_estado|safe }}
+        }]
+    }
 });
 
-new Chart(document.getElementById("certChart"),{
-type:"pie",
-data:{labels:{{ labels_cert|safe }},
-datasets:[{data:{{ data_cert|safe }} }]}
+const certChart = new Chart(document.getElementById("certChart"),{
+    type:"pie",
+    data:{
+        labels: {{ labels_cert|safe }},
+        datasets:[{
+            data: {{ data_cert|safe }}
+        }]
+    }
 });
 </script>
 
