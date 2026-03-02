@@ -2,10 +2,13 @@ import streamlit as st
 import pandas as pd
 import streamlit.components.v1 as components
 
+# -------------------------
+# CONFIGURACIÓN
+# -------------------------
 st.set_page_config(layout="wide")
 
 # -------------------------
-# ESTILO COMPACTO PROFESIONAL
+# ESTILO COMPACTO
 # -------------------------
 st.markdown("""
 <style>
@@ -14,9 +17,6 @@ div[data-baseweb="select"] {
 }
 div[data-baseweb="input"] {
     font-size: 13px;
-}
-button[kind="secondary"] {
-    border-radius: 8px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -28,15 +28,18 @@ df = pd.read_csv("certificaciones.csv", encoding="latin-1")
 df["Fecha_vencimiento"] = pd.to_datetime(df["Fecha_vencimiento"], errors="coerce")
 
 # -------------------------
-# ESTADO DE FILTROS (persistente)
+# INICIALIZAR FILTROS
 # -------------------------
-if "df_filtrado" not in st.session_state:
-    st.session_state.df_filtrado = df.copy()
-
-df_filtrado = st.session_state.df_filtrado
+if "filtros_activos" not in st.session_state:
+    st.session_state.filtros_activos = False
 
 # -------------------------
-# 1️⃣ DASHBOARD ARRIBA
+# APLICAR FILTROS (VACÍO AL INICIO)
+# -------------------------
+df_filtrado = df.copy()
+
+# -------------------------
+# DASHBOARD ARRIBA
 # -------------------------
 csv_string = df_filtrado.to_csv(index=False)
 
@@ -51,14 +54,12 @@ html_code = html_code.replace(
 components.html(html_code, height=950, scrolling=True)
 
 st.markdown("---")
-
-# -------------------------
-# 2️⃣ FILTROS COMPACTOS ABAJO
-# -------------------------
-
 st.markdown("#### Filtros")
 
-col1, col2, col3, col4, col5 = st.columns([1,1,1,1,1.2])
+# -------------------------
+# FILTROS COMPACTOS
+# -------------------------
+col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1.2])
 
 with col1:
     filtro_cert = st.multiselect(
@@ -91,10 +92,10 @@ with col4:
     )
 
 with col5:
-    col_btn1, col_btn2 = st.columns([1,1])
+    col_btn1, col_btn2 = st.columns([1, 1])
 
     with col_btn1:
-        st.download_button(
+        exportar = st.download_button(
             "Exportar datos",
             df_filtrado.to_csv(index=False),
             "certificaciones.csv",
@@ -102,13 +103,14 @@ with col5:
             use_container_width=True
         )
 
- with col_btn2:
-    if st.button("Borrar filtros", use_container_width=True):
-        st.session_state.df_filtrado = df.copy()
-        st.rerun()
+    with col_btn2:
+        borrar = st.button(
+            "Borrar filtros",
+            use_container_width=True
+        )
 
 # -------------------------
-# APLICAR FILTROS
+# APLICAR FILTROS DESPUÉS DE INPUTS
 # -------------------------
 df_filtrado = df.copy()
 
@@ -127,5 +129,8 @@ if isinstance(filtro_fecha, tuple) and len(filtro_fecha) == 2:
         (df_filtrado["Fecha_vencimiento"] <= pd.to_datetime(filtro_fecha[1]))
     ]
 
-st.session_state.df_filtrado = df_filtrado
-
+# -------------------------
+# BORRAR FILTROS
+# -------------------------
+if borrar:
+    st.rerun()
