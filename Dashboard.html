@@ -14,7 +14,6 @@ body{font-family:'Segoe UI',Tahoma,Verdana,sans-serif;background:linear-gradient
 .container{max-width:1400px;margin:0 auto;background:white;border-radius:15px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}
 .header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:30px;text-align:center}
 .header h1{font-size:2.5em;margin-bottom:10px}
-.header p{opacity:.9}
 .content{padding:30px}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:40px}
 .stat-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:25px;border-radius:12px;text-align:center}
@@ -101,16 +100,21 @@ function procesarCSV(csv){
 
 function parsearFecha(fechaStr){
     if(!fechaStr) return null;
+    fechaStr = fechaStr.trim();
+
     const dmy = fechaStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-    if(dmy) return new Date(`${dmy[3]}-${dmy[2]}-${dmy[1]}`);
+    if(dmy) return new Date(dmy[3], dmy[2]-1, dmy[1]);
+
     const ymd = fechaStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if(ymd) return new Date(`${ymd[1]}-${ymd[2]}-${ymd[3]}`);
-    return new Date(fechaStr);
+    if(ymd) return new Date(ymd[1], ymd[2]-1, ymd[3]);
+
+    const fecha = new Date(fechaStr);
+    return isNaN(fecha) ? null : fecha;
 }
 
 function calcularEstado(fecha){
     const f = parsearFecha(fecha);
-    if(!f || isNaN(f)) return "Vencida";
+    if(!f) return "Vencida";
     const hoy = new Date();
     const dias = (f - hoy) / (1000*60*60*24);
     if(dias < 0) return "Vencida";
@@ -134,14 +138,17 @@ function renderizar(datos){
             holdCount[d.Comentarios]=(holdCount[d.Comentarios]||0)+1;
         }
 
+        const fechaCert = parsearFecha(d["Fecha_Certificacion"]);
+        const fechaVenc = parsearFecha(d["Fecha_Vencimiento"]);
+
         tbody.innerHTML+=`
         <tr>
         <td>${d.Nombre||""}</td>
         <td>${d["SAP ID"]||""}</td>
         <td>${d.Certificacion||""}</td>
         <td>${d["Activity Type"]||""}</td>
-        <td>${d["Fecha_Certificacion"] ? parsearFecha(d["Fecha_Certificacion"]).toLocaleDateString("es-AR") : ""}</td>
-        <td>${d["Fecha_Vencimiento"] ? parsearFecha(d["Fecha_Vencimiento"]).toLocaleDateString("es-AR") : ""}</td>
+        <td>${fechaCert ? fechaCert.toLocaleDateString("es-AR") : ""}</td>
+        <td>${fechaVenc ? fechaVenc.toLocaleDateString("es-AR") : ""}</td>
         <td><span class="status-badge status-${estado}">${estado}</span></td>
         <td>${d.Comentarios||""}</td>
         </tr>`;
@@ -172,14 +179,22 @@ function filtrar(){
             const col=input.dataset.col;
             const val=input.value.toLowerCase();
             if(!val) return true;
-            return (d[col]||"").toLowerCase().includes(val);
+
+            let valor=d[col]||"";
+
+            if(col==="Fecha_Certificacion" || col==="Fecha_Vencimiento"){
+                const fecha=parsearFecha(valor);
+                valor=fecha?fecha.toLocaleDateString("es-AR"):"";
+            }
+
+            return valor.toString().toLowerCase().includes(val);
         });
     });
     renderizar(filtrado);
 }
 
-window.onload = function() {
-    if (window.csvData) {
+window.onload=function(){
+    if(window.csvData){
         procesarCSV(window.csvData);
     }
 };
