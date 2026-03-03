@@ -100,7 +100,6 @@ th,td{padding:8px;border-bottom:1px solid #eee;font-size:13px}
 
 <script>
 let datosGlobal=[];
-let datosActuales=[];
 let ouChart,holdChart;
 let filtroOU=null;
 let filtroHold=null;
@@ -150,13 +149,24 @@ if(diff<=90) return "Por Vencer";
 return "Vigente";
 }
 
-function aplicarFiltrosGraficos(){
+function aplicarFiltros(){
 let datos=datosGlobal;
+
+const nombre=document.getElementById("filtroNombre").value.toLowerCase();
+const sap=document.getElementById("filtroSAP").value.toLowerCase();
+const act=document.getElementById("filtroActivity").value;
+const cert=document.getElementById("filtroCertType").value;
+
+datos=datos.filter(d=>{
+return (!nombre||d.Nombre?.toLowerCase().includes(nombre))
+&&(!sap||d["SAP ID"]?.toLowerCase().includes(sap))
+&&(!act||d["Activity Type"]===act)
+&&(!cert||d["Certification Type"]===cert);
+});
 
 if(filtroOU){
 datos=datos.filter(d=>d["OU 4"]===filtroOU);
 }
-
 if(filtroHold){
 datos=datos.filter(d=>d.Comentarios===filtroHold);
 }
@@ -172,7 +182,7 @@ renderizar(datosGlobal);
 }
 
 function renderizar(datos){
-datosActuales=datos;
+
 let ven=0;
 let ouCount={},holdCount={};
 const tbody=document.getElementById("tableBody");
@@ -211,6 +221,18 @@ tbody.innerHTML+=`
 
 document.getElementById("pendientes").textContent=ven;
 
+const sortedOU = Object.entries(ouCount)
+.filter(e=>e[0] && e[1]>0)
+.sort((a,b)=>b[1]-a[1]);
+
+if(sortedOU.length>0){
+document.getElementById("areaCritica").textContent=sortedOU[0][0];
+document.getElementById("areaCantidad").textContent=sortedOU[0][1]+" pendientes";
+}else{
+document.getElementById("areaCritica").textContent="Sin datos";
+document.getElementById("areaCantidad").textContent="";
+}
+
 crearGraficos(ouCount,holdCount);
 }
 
@@ -231,7 +253,7 @@ if(elements.length>0){
 const index=elements[0].index;
 const seleccionado=ouLabels[index];
 filtroOU = (filtroOU===seleccionado) ? null : seleccionado;
-aplicarFiltrosGraficos();
+aplicarFiltros();
 }
 }
 }
@@ -251,15 +273,15 @@ if(elements.length>0){
 const index=elements[0].index;
 const seleccionado=holdLabels[index];
 filtroHold = (filtroHold===seleccionado) ? null : seleccionado;
-aplicarFiltrosGraficos();
+aplicarFiltros();
 }
 }
 }
 });
 }
 
-document.addEventListener("input",()=>renderizar(datosGlobal));
-document.addEventListener("change",()=>renderizar(datosGlobal));
+document.addEventListener("input",aplicarFiltros);
+document.addEventListener("change",aplicarFiltros);
 
 window.onload=function(){
 if(window.csvData){
