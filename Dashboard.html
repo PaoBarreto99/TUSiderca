@@ -1,233 +1,293 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html> 
+<html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
-body{
-    font-family: Arial, sans-serif;
-    margin:0;
-    background:#f4f6f9;
-}
-
-.header{
-    background:#1f2937;
-    color:white;
-    padding:20px;
-}
-
-.header h1{
-    margin:0;
-}
-
-.subtitulo{
-    font-size:14px;
-    margin-top:5px;
-}
-
-.subtitulo a{
-    color:#93c5fd;
-    text-decoration:none;
-    margin-right:15px;
-}
-
-.cards{
-    display:flex;
-    gap:20px;
-    padding:20px;
-}
-
-.card{
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 2px 6px rgba(0,0,0,0.1);
-    flex:1;
-}
-
-.card h2{
-    margin:0;
-    font-size:28px;
-}
-
-.card p{
-    margin:5px 0 0 0;
-    color:#555;
-}
-
-.graficos{
-    display:flex;
-    gap:20px;
-    padding:20px;
-}
-
-canvas{
-    background:white;
-    padding:15px;
-    border-radius:10px;
-    box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
+body{font-family:Segoe UI;background:#f4f6fa;padding:20px}
+.container{max-width:1500px;margin:auto}
+.header{background:linear-gradient(135deg,#6a11cb,#2575fc);color:white;padding:25px;border-radius:12px;margin-bottom:25px;text-align:center;}
+.subtitulo{margin-top:10px;font-size:14px;opacity:0.95;line-height:1.6;}
+.subtitulo a{color:#ffffff;text-decoration:underline;font-weight:500;}
+.filters{background:white;padding:15px;border-radius:12px;margin-bottom:25px;display:flex;gap:15px;flex-wrap:wrap}
+.filters input,.filters select{padding:8px;border-radius:8px;border:1px solid #ccc}
+.filters button{padding:8px 15px;border:none;border-radius:8px;background:#6a11cb;color:white;cursor:pointer}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-bottom:30px}
+.stat-card{color:white;padding:20px;border-radius:12px;text-align:center}
+.stat-card h3{margin:0}
+.stat-card .number{font-size:2em;font-weight:bold}
+.subtext{font-size:13px;margin-top:6px;opacity:0.9}
+.bg-purple{background:linear-gradient(135deg,#6a11cb,#2575fc);}
+.bg-red{background:linear-gradient(135deg,#cb2d3e,#ef473a);}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px}
+.chart-container{background:white;padding:15px;border-radius:12px;height:450px;}
+table{width:100%;border-collapse:collapse;background:white}
+thead{background:#6a11cb;color:white}
+th,td{padding:8px;border-bottom:1px solid #eee;font-size:13px}
+.estado-vigente{color:green;font-weight:bold}
+.estado-porvencer{color:orange;font-weight:bold}
+.estado-vencida{color:red;font-weight:bold}
 </style>
 </head>
 
 <body>
+<div class="container">
 
 <div class="header">
-    <h1>Dashboard Certificaciones</h1>
-    <div class="subtitulo">
-        <a href="https://tuslink1.com" target="_blank">Link 1</a>
-        <a href="https://tuslink2.com" target="_blank">Link 2</a>
-    </div>
+<h1>Mínimos Requeridos VENCIDOS</h1>
 </div>
 
-<div class="cards">
-    <div class="card">
-        <h2>CUMPLIMIENTO 93%</h2>
-        <p>Target 100%</p>
-    </div>
-
-    <div class="card">
-        <h2 id="requisitosVencidos">0</h2>
-        <p>Requisitos vencidos</p>
-    </div>
-
-    <div class="card">
-        <h2 id="areaCritica">-</h2>
-        <p id="areaCantidad"></p>
-    </div>
+<div class="filters">
+<input type="text" id="filtroNombre" placeholder="Nombre">
+<input type="text" id="filtroSAP" placeholder="SAP ID">
+<select id="filtroActivity"><option value="">Activity Type</option></select>
+<select id="filtroCertType"><option value="">Certification Type</option></select>
+<button onclick="resetTotal()">Reset</button>
+<button onclick="exportarExcel()">Exportar Excel</button>
 </div>
 
-<div class="graficos">
-    <canvas id="graficoOU"></canvas>
-    <canvas id="graficoEstado"></canvas>
+<div class="stats-grid">
+<div class="stat-card bg-purple">
+<h3>CUMPLIMIENTO 93%</h3>
+<div class="subtext">Target: 100%</div>
+</div>
+
+<div class="stat-card bg-red">
+<h3>Requisitos vencidos</h3>
+<div class="number" id="pendientes">0</div>
+</div>
+
+<div class="stat-card bg-purple">
+<h3>Área más crítica:</h3>
+<div class="number" id="areaCritica">-</div>
+<div class="subtext" id="areaCantidad"></div>
+</div>
+</div>
+
+<div class="charts-grid">
+<div class="chart-container">
+<h3>Pendientes por OU 4</h3>
+<canvas id="ouChart"></canvas>
+</div>
+<div class="chart-container">
+<h3>On Hold</h3>
+<canvas id="holdChart"></canvas>
+</div>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Nombre</th>
+<th>SAP ID</th>
+<th>Certification Type</th>
+<th>Certificacion</th>
+<th>Activity Type</th>
+<th>OU 4</th>
+<th>Estado</th>
+<th>Comentarios</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
 </div>
 
 <script>
+let datosGlobal=[];
+let ouChart,holdChart;
+let filtroOU=null;
+let filtroHold=null;
 
-let dataOriginal = [];
-let filtroOU = null;
-let filtroEstado = null;
-let chartOU;
-let chartEstado;
-
-function renderizar(data){
-
-    let dataFiltrada = data.filter(d=>{
-        let ok = true;
-        if(filtroOU) ok = ok && d["OU 4"] === filtroOU;
-        if(filtroEstado) ok = ok && d["Estado"] === filtroEstado;
-        return ok;
-    });
-
-    // 🔢 Contar vencidos
-    let vencidos = dataFiltrada.filter(d=>d["Estado"]==="Vencido").length;
-    document.getElementById("requisitosVencidos").textContent = vencidos;
-
-    // 📊 Conteo por OU
-    let ouCount = {};
-    dataFiltrada.forEach(d=>{
-        let ou = d["OU 4"];
-        if(ou){
-            ouCount[ou] = (ouCount[ou] || 0) + 1;
-        }
-    });
-
-    // 📊 Conteo por Estado
-    let estadoCount = {};
-    dataFiltrada.forEach(d=>{
-        let est = d["Estado"];
-        if(est){
-            estadoCount[est] = (estadoCount[est] || 0) + 1;
-        }
-    });
-
-    // 🔥 Área más crítica
-    let sortedOU = Object.entries(ouCount)
-        .filter(e=>e[1]>0)
-        .sort((a,b)=>b[1]-a[1]);
-
-    if(sortedOU.length>0){
-        document.getElementById("areaCritica").textContent = sortedOU[0][0];
-        document.getElementById("areaCantidad").textContent = sortedOU[0][1] + " pendientes";
-    }else{
-        document.getElementById("areaCritica").textContent = "Sin datos";
-        document.getElementById("areaCantidad").textContent = "";
-    }
-
-    // 🔁 Destruir gráficos anteriores
-    if(chartOU) chartOU.destroy();
-    if(chartEstado) chartEstado.destroy();
-
-    // 📊 Gráfico OU
-    chartOU = new Chart(document.getElementById("graficoOU"),{
-        type:"bar",
-        data:{
-            labels:Object.keys(ouCount),
-            datasets:[{
-                label:"Cantidad",
-                data:Object.values(ouCount)
-            }]
-        },
-        options:{
-            onClick:(evt,elements)=>{
-                if(elements.length>0){
-                    let index = elements[0].index;
-                    let label = chartOU.data.labels[index];
-
-                    if(filtroOU === label){
-                        filtroOU = null;
-                    }else{
-                        filtroOU = label;
-                    }
-
-                    renderizar(dataOriginal);
-                }
-            }
-        }
-    });
-
-    // 📊 Gráfico Estado
-    chartEstado = new Chart(document.getElementById("graficoEstado"),{
-        type:"pie",
-        data:{
-            labels:Object.keys(estadoCount),
-            datasets:[{
-                data:Object.values(estadoCount)
-            }]
-        },
-        options:{
-            onClick:(evt,elements)=>{
-                if(elements.length>0){
-                    let index = elements[0].index;
-                    let label = chartEstado.data.labels[index];
-
-                    if(filtroEstado === label){
-                        filtroEstado = null;
-                    }else{
-                        filtroEstado = label;
-                    }
-
-                    renderizar(dataOriginal);
-                }
-            }
-        }
-    });
-
+function procesarCSV(csv){
+csv = csv.replace(/^\uFEFF/, "");
+Papa.parse(csv,{
+header:true,
+skipEmptyLines:true,
+complete:function(results){
+datosGlobal = results.data;
+cargarOpciones();
+renderizar(datosGlobal);
+}
+});
 }
 
-// 🚀 Cargar datos desde Streamlit
-window.addEventListener("load", function(){
+function cargarOpciones(){
+const actSet=new Set();
+const certSet=new Set();
+datosGlobal.forEach(d=>{
+if(d["Activity Type"]) actSet.add(d["Activity Type"]);
+if(d["Certification Type"]) certSet.add(d["Certification Type"]);
+});
+actSet.forEach(a=>{
+document.getElementById("filtroActivity").innerHTML+=`<option>${a}</option>`;
+});
+certSet.forEach(c=>{
+document.getElementById("filtroCertType").innerHTML+=`<option>${c}</option>`;
+});
+}
 
-    if(typeof window.jsonData !== "undefined" && window.jsonData){
-        dataOriginal = window.jsonData;
-        renderizar(dataOriginal);
-    }else{
-        console.error("No se recibió jsonData desde Streamlit");
-    }
+function parseFecha(fechaStr){
+if(!fechaStr) return null;
+const partes=fechaStr.split("/");
+if(partes.length!==3) return null;
+return new Date(partes[2],partes[0]-1,partes[1]);
+}
 
+function calcularEstado(fechaStr){
+const fecha=parseFecha(fechaStr);
+if(!fecha) return "Vencida";
+const hoy=new Date(); hoy.setHours(0,0,0,0);
+const diff=(fecha-hoy)/(1000*60*60*24);
+if(diff<0) return "Vencida";
+if(diff<=90) return "Por Vencer";
+return "Vigente";
+}
+
+function aplicarFiltros(){
+let datos=datosGlobal;
+
+const nombre=document.getElementById("filtroNombre").value.toLowerCase();
+const sap=document.getElementById("filtroSAP").value.toLowerCase();
+const act=document.getElementById("filtroActivity").value;
+const cert=document.getElementById("filtroCertType").value;
+
+datos=datos.filter(d=>{
+return (!nombre||d.Nombre?.toLowerCase().includes(nombre))
+&&(!sap||d["SAP ID"]?.toLowerCase().includes(sap))
+&&(!act||d["Activity Type"]===act)
+&&(!cert||d["Certification Type"]===cert);
 });
 
+if(filtroOU){
+datos=datos.filter(d=>d["OU 4"]===filtroOU);
+}
+if(filtroHold){
+datos=datos.filter(d=>d.Comentarios===filtroHold);
+}
+
+renderizar(datos);
+}
+
+function resetTotal(){
+document.querySelectorAll("input,select").forEach(e=>e.value="");
+filtroOU=null;
+filtroHold=null;
+renderizar(datosGlobal);
+}
+
+function renderizar(datos){
+
+let ven=0;
+let ouCount={},holdCount={};
+const tbody=document.getElementById("tableBody");
+tbody.innerHTML="";
+
+datos.forEach(d=>{
+const estado=calcularEstado(d["Fecha_vencimiento"]);
+if(estado==="Vencida") ven++;
+
+if(estado!=="Vigente"){
+const ou=d["OU 4"]||"Sin OU";
+ouCount[ou]=(ouCount[ou]||0)+1;
+}
+
+if(d.Comentarios){
+holdCount[d.Comentarios]=(holdCount[d.Comentarios]||0)+1;
+}
+
+let clase="";
+if(estado==="Vigente")clase="estado-vigente";
+if(estado==="Por Vencer")clase="estado-porvencer";
+if(estado==="Vencida")clase="estado-vencida";
+
+tbody.innerHTML+=`
+<tr>
+<td>${d.Nombre||""}</td>
+<td>${d["SAP ID"]||""}</td>
+<td>${d["Certification Type"]||""}</td>
+<td>${d.Certificacion||""}</td>
+<td>${d["Activity Type"]||""}</td>
+<td>${d["OU 4"]||""}</td>
+<td class="${clase}">${estado}</td>
+<td>${d.Comentarios||""}</td>
+</tr>`;
+});
+
+document.getElementById("pendientes").textContent=ven;
+
+const sortedOU = Object.entries(ouCount)
+.filter(e=>e[0] && e[1]>0)
+.sort((a,b)=>b[1]-a[1]);
+
+if(sortedOU.length>0){
+document.getElementById("areaCritica").textContent=sortedOU[0][0];
+document.getElementById("areaCantidad").textContent=sortedOU[0][1]+" pendientes";
+}else{
+document.getElementById("areaCritica").textContent="Sin datos";
+document.getElementById("areaCantidad").textContent="";
+}
+
+crearGraficos(ouCount,holdCount);
+}
+
+function crearGraficos(ouCount,holdCount){
+
+const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1]);
+const ouLabels=sortedOU.map(e=>e[0]);
+const ouValues=sortedOU.map(e=>e[1]);
+
+if(ouChart) ouChart.destroy();
+ouChart=new Chart(document.getElementById("ouChart"),{
+type:"bar",
+data:{labels:ouLabels,datasets:[{data:ouValues}]},
+options:{
+indexAxis:'y',
+onClick:(evt,elements)=>{
+if(elements.length>0){
+const index=elements[0].index;
+const seleccionado=ouLabels[index];
+filtroOU = (filtroOU===seleccionado) ? null : seleccionado;
+aplicarFiltros();
+}
+}
+}
+});
+
+const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1]);
+const holdLabels=sortedHold.map(e=>e[0]);
+const holdValues=sortedHold.map(e=>e[1]);
+
+if(holdChart) holdChart.destroy();
+holdChart=new Chart(document.getElementById("holdChart"),{
+type:"bar",
+data:{labels:holdLabels,datasets:[{data:holdValues}]},
+options:{
+onClick:(evt,elements)=>{
+if(elements.length>0){
+const index=elements[0].index;
+const seleccionado=holdLabels[index];
+filtroHold = (filtroHold===seleccionado) ? null : seleccionado;
+aplicarFiltros();
+}
+}
+}
+});
+}
+
+document.addEventListener("input",aplicarFiltros);
+document.addEventListener("change",aplicarFiltros);
+
+window.onload=function(){
+if(window.csvData){
+procesarCSV(window.csvData);
+}
+}
 </script>
 
 </body>
