@@ -1,80 +1,298 @@
-import streamlit as st
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Seguimiento Mínimos requeridos</title>
 
-st.set_page_config(page_title="Mínimos Requeridos Vencidos", layout="wide")
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-# --- VARIABLES (podés modificar manualmente acá) ---
-cumplimiento = 93
-target = 100
-requisitos_vencidos = 509
-aging_promedio = 74
-variacion_mensual = "-8%"
-
-# --- ESTILOS ---
-st.markdown("""
 <style>
-.card {
-    background: linear-gradient(135deg, #6a11cb, #2575fc);
-    padding: 30px;
-    border-radius: 20px;
-    color: white;
-    text-align: center;
-    box-shadow: 0px 4px 20px rgba(0,0,0,0.15);
+
+body{
+font-family: Arial;
+margin:0;
+background:#f4f4f4;
 }
-.card h1 {
-    font-size: 48px;
-    margin-bottom: 5px;
+
+.header{
+background:#6A1B9A;
+color:white;
+padding:20px;
+text-align:center;
 }
-.card h2 {
-    font-size: 22px;
-    margin-bottom: 10px;
+
+.subtitle{
+font-size:14px;
+margin-top:8px;
 }
-.card p {
-    font-size: 14px;
-    opacity: 0.85;
+
+.subtitle a{
+color:white;
+text-decoration:underline;
 }
+
+.stats-grid{
+display:flex;
+gap:20px;
+padding:20px;
+}
+
+.stat-card{
+flex:1;
+padding:20px;
+border-radius:10px;
+color:white;
+text-align:center;
+font-weight:bold;
+}
+
+.subtext{
+font-size:13px;
+margin-top:5px;
+}
+
+.content{
+padding:20px;
+}
+
+canvas{
+background:white;
+padding:10px;
+border-radius:10px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+background:white;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:8px;
+font-size:12px;
+}
+
+.vencida{color:red;font-weight:bold;}
+.vigente{color:green;font-weight:bold;}
+.porvencer{color:orange;font-weight:bold;}
+
 </style>
-""", unsafe_allow_html=True)
+</head>
+<body>
 
-# --- HEADER ---
-st.markdown("<h1 style='text-align: center;'>Mínimos Requeridos VENCIDOS</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Actualizado al 03-Mar</p>", unsafe_allow_html=True)
-st.write("")
+<div class="header">
+<h1>Seguimiento Mínimos requeridos</h1>
+<div class="subtitle">
+Actualizado hasta el 03-Mar. 
+<a href="https://app.powerbi.com/groups/3f2e9d83-3263-4d60-9f8b-6c867912acc0/reports/f8180ab6-3019-45e8-9f6f-b40aa6ca4e91/52c739b0d08235bbec69?ctid=a054342c-6f8c-4378-ad61-a8ad00f2b736&experience=power-bi&chromeless=true" target="_blank">Link al BI de mínimos requeridos</a>
+<br>
+<a href="https://pwbi.tenaris.net/reports/powerbi/Business%20Analytics%20Reports/Regions/Southern%20Cone/TU%20Argentina/INFO%20TU" target="_blank">¿Qué necesito hacer para regularizarlos?</a>
+</div>
+</div>
 
-# --- CARDS ---
-col1, col2, col3, col4 = st.columns(4)
+<div class="stats-grid">
 
-with col1:
-    st.markdown(f"""
-    <div class="card">
-        <h2>CUMPLIMIENTO</h2>
-        <h1>{cumplimiento}%</h1>
-        <p>Target {target}%</p>
-    </div>
-    """, unsafe_allow_html=True)
+<div class="stat-card" id="cardCumplimiento">
+<h3 id="cumplimiento">CUMPLIMIENTO 0%</h3>
+<div class="subtext">Target: 100%</div>
+</div>
 
-with col2:
-    st.markdown(f"""
-    <div class="card">
-        <h2>Requisitos vencidos</h2>
-        <h1>{requisitos_vencidos}</h1>
-    </div>
-    """, unsafe_allow_html=True)
+<div class="stat-card" style="background:#c62828;">
+<h3>Requisitos vencidos</h3>
+<div id="vencidos">0</div>
+</div>
 
-with col3:
-    st.markdown(f"""
-    <div class="card">
-        <h2>Aging promedio</h2>
-        <h1>{aging_promedio} días</h1>
-    </div>
-    """, unsafe_allow_html=True)
+<div class="stat-card" style="background:#1565c0;">
+<h3>Área más crítica:</h3>
+<div id="areaCritica">-</div>
+<div class="subtext" id="areaCantidad"></div>
+</div>
 
-with col4:
-    st.markdown(f"""
-    <div class="card">
-        <h2>Variación mensual</h2>
-        <h1>{variacion_mensual}</h1>
-    </div>
-    """, unsafe_allow_html=True)
+</div>
 
-st.write("")
-st.write("⬇️ Aquí irían tus gráficos por área y detalle.")
+<div class="content">
+
+<canvas id="ouChart"></canvas>
+<br>
+<canvas id="onHoldChart"></canvas>
+
+<table id="tabla">
+<thead>
+<tr>
+<th>Nombre</th>
+<th>SAP ID</th>
+<th>Certification Type</th>
+<th>Certificacion</th>
+<th>Activity Type</th>
+<th>OU 4</th>
+<th>Estado</th>
+<th>Comentarios</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+</div>
+
+<script>
+
+let datosGlobal=[];
+let filtroOU=null;
+let filtroOnHold=null;
+
+function parseFecha(fecha){
+if(!fecha) return null;
+const partes=fecha.split("/");
+return new Date(partes[2], partes[0]-1, partes[1]);
+}
+
+function calcularEstado(fecha){
+const hoy=new Date();
+const f=parseFecha(fecha);
+if(!f) return "Vencida";
+
+const diff=(f-hoy)/(1000*60*60*24);
+
+if(diff<0) return "Vencida";
+if(diff<=90) return "Por Vencer";
+return "Vigente";
+}
+
+function renderizar(datos){
+
+let vig=0,ven=0;
+let ouCount={};
+let onHoldCount={};
+
+datos.forEach(d=>{
+
+const estado=calcularEstado(d["Fecha_vencimiento"]);
+d.estadoCalc=estado;
+
+if(estado==="Vigente")vig++;
+if(estado==="Vencida")ven++;
+
+if(estado!=="Vigente"){
+const ou=d["OU 4"]||"Sin OU";
+ouCount[ou]=(ouCount[ou]||0)+1;
+}
+
+if(d["Comentarios"]){
+const c=d["Comentarios"];
+onHoldCount[c]=(onHoldCount[c]||0)+1;
+}
+
+});
+
+let cumplimiento = datos.length ? ((vig/datos.length)*100).toFixed(1) : 0;
+
+document.getElementById("cumplimiento").textContent="CUMPLIMIENTO "+cumplimiento+"%";
+document.getElementById("vencidos").textContent=ven;
+
+const card=document.getElementById("cardCumplimiento");
+
+if(cumplimiento>=95) card.style.background="#2e7d32";
+else if(cumplimiento>=85) card.style.background="#f9a825";
+else card.style.background="#c62828";
+
+const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1]);
+
+if(sortedOU.length>0){
+document.getElementById("areaCritica").textContent=sortedOU[0][0];
+document.getElementById("areaCantidad").textContent=sortedOU[0][1]+" pendientes";
+}else{
+document.getElementById("areaCritica").textContent="-";
+document.getElementById("areaCantidad").textContent="";
+}
+
+renderTabla(datos);
+renderOUChart(sortedOU);
+renderOnHoldChart(Object.entries(onHoldCount).sort((a,b)=>b[1]-a[1]));
+
+}
+
+function renderTabla(datos){
+
+const tbody=document.querySelector("#tabla tbody");
+tbody.innerHTML="";
+
+datos.forEach(d=>{
+const tr=document.createElement("tr");
+
+let clase="";
+if(d.estadoCalc==="Vencida")clase="vencida";
+if(d.estadoCalc==="Vigente")clase="vigente";
+if(d.estadoCalc==="Por Vencer")clase="porvencer";
+
+tr.innerHTML=`
+<td>${d["Nombre"]||""}</td>
+<td>${d["SAP ID"]||""}</td>
+<td>${d["Certification Type"]||""}</td>
+<td>${d["Certificacion"]||""}</td>
+<td>${d["Activity Type"]||""}</td>
+<td>${d["OU 4"]||""}</td>
+<td class="${clase}">${d.estadoCalc}</td>
+<td>${d["Comentarios"]||""}</td>
+`;
+
+tbody.appendChild(tr);
+});
+
+}
+
+let ouChart,onHoldChart;
+
+function renderOUChart(data){
+
+const ctx=document.getElementById("ouChart").getContext("2d");
+if(ouChart) ouChart.destroy();
+
+ouChart=new Chart(ctx,{
+type:"bar",
+data:{
+labels:data.map(d=>d[0]),
+datasets:[{
+label:"Pendientes por OU",
+data:data.map(d=>d[1]),
+backgroundColor:"#6A1B9A"
+}]
+}
+});
+
+}
+
+function renderOnHoldChart(data){
+
+const ctx=document.getElementById("onHoldChart").getContext("2d");
+if(onHoldChart) onHoldChart.destroy();
+
+onHoldChart=new Chart(ctx,{
+type:"bar",
+data:{
+labels:data.map(d=>d[0]),
+datasets:[{
+label:"On hold",
+data:data.map(d=>d[1]),
+backgroundColor:"#9c27b0"
+}]
+}
+});
+
+}
+
+Papa.parse("data.csv",{
+download:true,
+header:true,
+complete:function(results){
+datosGlobal=results.data.filter(r=>r["Nombre"]);
+renderizar(datosGlobal);
+}
+});
+
+</script>
+
+</body>
+</html>
