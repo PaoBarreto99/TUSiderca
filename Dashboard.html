@@ -14,6 +14,7 @@ body{font-family:Segoe UI;background:#f4f6fa;padding:20px}
 .header{background:linear-gradient(135deg,#6a11cb,#2575fc);color:white;padding:25px;border-radius:12px;margin-bottom:25px;text-align:center;}
 .subtitulo{margin-top:10px;font-size:14px;opacity:0.95;line-height:1.6;}
 .subtitulo a{color:#ffffff;text-decoration:underline;font-weight:500;}
+.subtitulo a:hover{opacity:0.8;}
 .filters{background:white;padding:15px;border-radius:12px;margin-bottom:25px;display:flex;gap:15px;flex-wrap:wrap}
 .filters input,.filters select{padding:8px;border-radius:8px;border:1px solid #ccc}
 .filters button{padding:8px 15px;border:none;border-radius:8px;background:#6a11cb;color:white;cursor:pointer}
@@ -40,6 +41,18 @@ th,td{padding:8px;border-bottom:1px solid #eee;font-size:13px}
 
 <div class="header">
 <h1>Mínimos Requeridos VENCIDOS</h1>
+
+<p class="subtitulo">
+Actualizado hasta el 03-Mar.
+<br>
+<a href="https://app.powerbi.com/groups/3f2e9d83-3263-4d60-9f8b-6c867912acc0/reports/f8180ab6-3019-45e8-9f6f-b40aa6ca4e91/52c739b0d08235bbec69?ctid=a054342c-6f8c-4378-ad61-a8ad00f2b736&experience=power-bi&chromeless=true" target="_blank">
+🔗 Link al BI de mínimos requeridos
+</a>
+<br><br>
+<a href="https://pwbi.tenaris.net/reports/powerbi/Business%20Analytics%20Reports/Regions/Southern%20Cone/TU%20Argentina/INFO%20TU" target="_blank">
+¿Cómo regularizo?
+</a>
+</p>
 </div>
 
 <div class="filters">
@@ -104,6 +117,7 @@ let ouChart,holdChart;
 let filtroOU=null;
 let filtroHold=null;
 
+/* ---------- CARGA CSV DESDE STREAMLIT ---------- */
 function procesarCSV(csv){
 csv = csv.replace(/^\uFEFF/, "");
 Papa.parse(csv,{
@@ -117,38 +131,7 @@ renderizar(datosGlobal);
 });
 }
 
-function cargarOpciones(){
-const actSet=new Set();
-const certSet=new Set();
-datosGlobal.forEach(d=>{
-if(d["Activity Type"]) actSet.add(d["Activity Type"]);
-if(d["Certification Type"]) certSet.add(d["Certification Type"]);
-});
-actSet.forEach(a=>{
-document.getElementById("filtroActivity").innerHTML+=`<option>${a}</option>`;
-});
-certSet.forEach(c=>{
-document.getElementById("filtroCertType").innerHTML+=`<option>${c}</option>`;
-});
-}
-
-function parseFecha(fechaStr){
-if(!fechaStr) return null;
-const partes=fechaStr.split("/");
-if(partes.length!==3) return null;
-return new Date(partes[2],partes[0]-1,partes[1]);
-}
-
-function calcularEstado(fechaStr){
-const fecha=parseFecha(fechaStr);
-if(!fecha) return "Vencida";
-const hoy=new Date(); hoy.setHours(0,0,0,0);
-const diff=(fecha-hoy)/(1000*60*60*24);
-if(diff<0) return "Vencida";
-if(diff<=90) return "Por Vencer";
-return "Vigente";
-}
-
+/* ---------- FILTROS SUPERIORES ---------- */
 function aplicarFiltros(){
 let datos=datosGlobal;
 
@@ -179,6 +162,25 @@ document.querySelectorAll("input,select").forEach(e=>e.value="");
 filtroOU=null;
 filtroHold=null;
 renderizar(datosGlobal);
+}
+
+/* ---------- RESTO DEL CÓDIGO (render, charts, etc.) ---------- */
+
+function parseFecha(fechaStr){
+if(!fechaStr) return null;
+const partes=fechaStr.split("/");
+if(partes.length!==3) return null;
+return new Date(partes[2],partes[0]-1,partes[1]);
+}
+
+function calcularEstado(fechaStr){
+const fecha=parseFecha(fechaStr);
+if(!fecha) return "Vencida";
+const hoy=new Date(); hoy.setHours(0,0,0,0);
+const diff=(fecha-hoy)/(1000*60*60*24);
+if(diff<0) return "Vencida";
+if(diff<=90) return "Por Vencer";
+return "Vigente";
 }
 
 function renderizar(datos){
