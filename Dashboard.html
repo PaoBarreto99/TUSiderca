@@ -9,6 +9,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
+  .subtitulo{
+margin-top:10px;
+font-size:14px;
+opacity:0.95;
+}
+
+.subtitulo a{
+color:#ffffff;
+text-decoration:underline;
+font-weight:500;
+}
+
+.subtitulo a:hover{
+opacity:0.8;
+}
 body{font-family:Segoe UI;background:#f4f6fa;padding:20px}
 .container{max-width:1500px;margin:auto}
 .header{
@@ -40,7 +55,14 @@ th,td{padding:8px;border-bottom:1px solid #eee;font-size:13px}
 <div class="container">
 
 <div class="header">
-<h1>Seguimiento - Mínimos Requeridos VENCIDOS </h1>
+<h1>Seguimiento Mínimos Requeridos</h1>
+<p class="subtitulo">
+Actualizado hasta el 03-Mar. 
+<a href="https://app.powerbi.com/groups/3f2e9d83-3263-4d60-9f8b-6c867912acc0/reports/f8180ab6-3019-45e8-9f6f-b40aa6ca4e91/52c739b0d08235bbec69?ctid=a054342c-6f8c-4378-ad61-a8ad00f2b736&experience=power-bi&chromeless=true" 
+target="_blank">
+Link al BI de mínimos requeridos
+</a>
+</p>
 </div>
 
 <div class="filters">
@@ -295,4 +317,5 @@ procesarCSV(window.csvData);
 
 </body>
 </html>
+
 
