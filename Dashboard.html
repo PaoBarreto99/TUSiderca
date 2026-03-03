@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -101,13 +101,9 @@ th,td{padding:8px;border-bottom:1px solid #eee;font-size:13px}
 <p class="subtitulo">
 Actualizado hasta el 03-Mar.
 <br>
-<a href="https://app.powerbi.com/groups/3f2e9d83-3263-4d60-9f8b-6c867912acc0/reports/f8180ab6-3019-45e8-9f6f-b40aa6ca4e91/52c739b0d08235bbec69?ctid=a054342c-6f8c-4378-ad61-a8ad00f2b736&experience=power-bi&chromeless=true" target="_blank">
-🔗 Link al BI de mínimos requeridos
-</a>
+<a href="#" target="_blank">🔗 Link al BI de mínimos requeridos</a>
 <br><br>
-<a href="https://pwbi.tenaris.net/reports/powerbi/Business%20Analytics%20Reports/Regions/Southern%20Cone/TU%20Argentina/INFO%20TU" target="_blank">
-¿Cómo regularizo?
-</a>
+<a href="#" target="_blank">¿Cómo regularizo?</a>
 </p>
 </div>
 
@@ -129,19 +125,16 @@ Actualizado hasta el 03-Mar.
 
 <div class="stats-grid">
 
-<!-- CARD 1 FIJA -->
 <div class="stat-card bg-purple">
 <h3>CUMPLIMIENTO 93%</h3>
 <div class="subtext">Target: 100%</div>
 </div>
 
-<!-- CARD 2 -->
 <div class="stat-card bg-red">
 <h3>Requisitos vencidos</h3>
 <div class="number" id="pendientes">0</div>
 </div>
 
-<!-- CARD 3 -->
 <div class="stat-card bg-purple">
 <h3>Área más crítica:</h3>
 <div class="number" id="areaCritica">-</div>
@@ -183,77 +176,6 @@ Actualizado hasta el 03-Mar.
 let datosGlobal=[];
 let datosActuales=[];
 let ouChart,holdChart;
-let filtroOU=null;
-let filtroHold=null;
-
-function procesarCSV(csv){
-csv = csv.replace(/^\uFEFF/, "");
-Papa.parse(csv,{
-header:true,
-skipEmptyLines:true,
-complete:function(results){
-datosGlobal = results.data;
-cargarOpciones();
-renderizar(datosGlobal);
-}
-});
-}
-
-function cargarOpciones(){
-const actSet=new Set();
-const certSet=new Set();
-datosGlobal.forEach(d=>{
-if(d["Activity Type"]) actSet.add(d["Activity Type"]);
-if(d["Certification Type"]) certSet.add(d["Certification Type"]);
-});
-actSet.forEach(a=>{
-document.getElementById("filtroActivity").innerHTML+=`<option>${a}</option>`;
-});
-certSet.forEach(c=>{
-document.getElementById("filtroCertType").innerHTML+=`<option>${c}</option>`;
-});
-}
-
-function parseFecha(fechaStr){
-if(!fechaStr) return null;
-const partes=fechaStr.split("/");
-if(partes.length!==3) return null;
-return new Date(partes[2],partes[0]-1,partes[1]);
-}
-
-function calcularEstado(fechaStr){
-const fecha=parseFecha(fechaStr);
-if(!fecha) return "Vencida";
-const hoy=new Date();
-hoy.setHours(0,0,0,0);
-const diff=(fecha-hoy)/(1000*60*60*24);
-if(diff<0) return "Vencida";
-if(diff<=90) return "Por Vencer";
-return "Vigente";
-}
-
-function aplicarFiltros(){
-let datos=datosGlobal;
-
-const nombre=document.getElementById("filtroNombre").value.toLowerCase();
-const sap=document.getElementById("filtroSAP").value.toLowerCase();
-const act=document.getElementById("filtroActivity").value;
-const cert=document.getElementById("filtroCertType").value;
-
-datos=datos.filter(d=>{
-return (!nombre||d.Nombre?.toLowerCase().includes(nombre))
-&&(!sap||d["SAP ID"]?.toLowerCase().includes(sap))
-&&(!act||d["Activity Type"]===act)
-&&(!cert||d["Certification Type"]===cert);
-});
-
-renderizar(datos);
-}
-
-function resetTotal(){
-document.querySelectorAll("input,select").forEach(e=>e.value="");
-renderizar(datosGlobal);
-}
 
 function renderizar(datos){
 
@@ -296,15 +218,6 @@ tbody.innerHTML+=`
 
 document.getElementById("pendientes").textContent = ven;
 
-const sortedOU = Object.entries(ouCount).sort((a,b)=>b[1]-a[1]);
-if(sortedOU.length>0){
-document.getElementById("areaCritica").textContent = sortedOU[0][0];
-document.getElementById("areaCantidad").textContent = sortedOU[0][1] + " pendientes";
-}else{
-document.getElementById("areaCritica").textContent = "-";
-document.getElementById("areaCantidad").textContent = "";
-}
-
 crearGraficos(ouCount,holdCount);
 }
 
@@ -318,7 +231,18 @@ if(ouChart) ouChart.destroy();
 ouChart=new Chart(document.getElementById("ouChart"),{
 type:"bar",
 data:{labels:ouLabels,datasets:[{data:ouValues}]},
-options:{indexAxis:'y',scales:{y:{ticks:{autoSkip:false}}}}
+options:{
+indexAxis:'y',
+scales:{y:{ticks:{autoSkip:false}}},
+onClick:(evt,elements)=>{
+if(elements.length>0){
+const index=elements[0].index;
+const ouSeleccionada=ouLabels[index];
+const filtrados = datosActuales.filter(d=>d["OU 4"]===ouSeleccionada);
+renderizar(filtrados);
+}
+}
+}
 });
 
 const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1]);
@@ -328,28 +252,20 @@ const holdValues=sortedHold.map(e=>e[1]);
 if(holdChart) holdChart.destroy();
 holdChart=new Chart(document.getElementById("holdChart"),{
 type:"bar",
-data:{labels:holdLabels,datasets:[{data:holdValues}]}
+data:{labels:holdLabels,datasets:[{data:holdValues}]},
+options:{
+onClick:(evt,elements)=>{
+if(elements.length>0){
+const index=elements[0].index;
+const holdSeleccionado=holdLabels[index];
+const filtrados = datosActuales.filter(d=>d.Comentarios===holdSeleccionado);
+renderizar(filtrados);
+}
+}
+}
 });
-}
-
-function exportarExcel(){
-const ws=XLSX.utils.json_to_sheet(datosActuales);
-const wb=XLSX.utils.book_new();
-XLSX.utils.book_append_sheet(wb,ws,"Reporte");
-XLSX.writeFile(wb,"Seguimiento_Minimos_Requeridos.xlsx");
-}
-
-document.addEventListener("input",aplicarFiltros);
-document.addEventListener("change",aplicarFiltros);
-
-window.onload=function(){
-if(window.csvData){
-procesarCSV(window.csvData);
-}
 }
 </script>
 
 </body>
 </html>
-
-
