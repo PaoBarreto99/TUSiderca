@@ -47,7 +47,7 @@ margin-top:10px;
 
 .chart-container{
 width:100%;
-height:300px; /* 🔥 mitad de tamaño */
+height:225px; /* 🔥 MITAD DE TAMAÑO */
 margin-bottom:30px;
 background:white;
 padding:15px;
@@ -145,7 +145,7 @@ const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1]);
 const ouLabels=sortedOU.map(e=>e[0]);
 const ouValues=sortedOU.map(e=>e[1]);
 
-// 🔴🟠 Colores: top 3 rojo, resto naranja
+// 🔴 Top 3 rojo, 🟠 resto naranja
 const coloresOU = ouValues.map((v,i)=> i < 3 ? "#ef473a" : "#f7971e");
 
 if(ouChart) ouChart.destroy();
