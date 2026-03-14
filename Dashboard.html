@@ -35,7 +35,13 @@ text-align:center
 .subtitulo{
 margin-top:8px;
 font-size:14px;
-opacity:0.9
+opacity:0.95
+}
+
+.subtitulo a{
+color:white;
+font-weight:bold;
+text-decoration:underline
 }
 
 .filters{
@@ -87,8 +93,8 @@ font-weight:bold
 
 .subcard{
 font-size:13px;
-opacity:0.9;
-margin-top:5px
+margin-top:5px;
+opacity:0.9
 }
 
 .charts-grid{
@@ -102,11 +108,11 @@ margin-bottom:30px
 background:white;
 padding:15px;
 border-radius:12px;
-height:250px
+height:240px
 }
 
 .chart-container canvas{
-height:190px !important
+height:180px !important
 }
 
 table{
@@ -138,16 +144,27 @@ font-size:13px
 <div class="container">
 
 <div class="header">
+
 <h1>Mínimos Requeridos VENCIDOS</h1>
+
 <div class="subtitulo">
+
 ¿Cómo lo regularizo?<br>
-Actualizado hasta el 06-Mar
+
+<a href="LINK_INSTRUCTIVO" target="_blank">Ver instructivo</a>
+
+|
+
+<a href="LINK_PROCEDIMIENTO" target="_blank">Ver procedimiento</a>
+
 </div>
+
 </div>
 
 <div class="filters">
 
 <input id="fNombre" placeholder="Nombre">
+
 <input id="fSAP" placeholder="SAP ID">
 
 <select id="fActivity">
@@ -163,6 +180,7 @@ Actualizado hasta el 06-Mar
 </select>
 
 <button onclick="resetFiltros()">Reset</button>
+
 <button onclick="exportarExcel()">Exportar Excel</button>
 
 </div>
@@ -221,8 +239,8 @@ Actualizado hasta el 06-Mar
 let datosGlobal=[]
 let datosFiltrados=[]
 
-let ouChart
-let holdChart
+let ouChart=null
+let holdChart=null
 
 function procesarCSV(csv){
 
@@ -249,9 +267,11 @@ const sup=new Set()
 const ou5=new Set()
 
 datosGlobal.forEach(d=>{
+
 if(d["Activity Type"]) act.add(d["Activity Type"])
 if(d["Supervisor"]) sup.add(d["Supervisor"])
 if(d["OU 5"]) ou5.add(d["OU 5"])
+
 })
 
 act.forEach(v=>fActivity.innerHTML+=`<option>${v}</option>`)
@@ -263,7 +283,9 @@ ou5.forEach(v=>fOU5.innerHTML+=`<option>${v}</option>`)
 function parseFecha(f){
 
 if(!f) return null
+
 const p=f.split("/")
+
 return new Date(p[2],p[1]-1,p[0])
 
 }
@@ -271,6 +293,7 @@ return new Date(p[2],p[1]-1,p[0])
 function estado(f){
 
 const fecha=parseFecha(f)
+
 if(!fecha) return "Vencida"
 
 const hoy=new Date()
@@ -328,25 +351,12 @@ const tbody=document.getElementById("tableBody")
 tbody.innerHTML=""
 
 let vencidas=0
-let ouCount={}
-let holdCount={}
 
 datosFiltrados.forEach(d=>{
 
 const est=estado(d["Fecha_vencimiento"])
 
-if(est==="Vencida"){
-
-vencidas++
-
-const ou=d["OU 4"]||"Sin OU"
-ouCount[ou]=(ouCount[ou]||0)+1
-
-}
-
-if(d["Comentarios"]){
-holdCount[d["Comentarios"]] = (holdCount[d["Comentarios"]]||0)+1
-}
+if(est==="Vencida") vencidas++
 
 tbody.innerHTML+=`
 <tr>
@@ -384,7 +394,9 @@ ouCount[ou]=(ouCount[ou]||0)+1
 }
 
 if(d["Comentarios"]){
-holdCount[d["Comentarios"]]=(holdCount[d["Comentarios"]]||0)+1
+
+holdCount[d["Comentarios"]] = (holdCount[d["Comentarios"]]||0)+1
+
 }
 
 })
@@ -398,7 +410,7 @@ const ouValues=ouSorted.map(x=>x[1])
 const holdLabels=holdSorted.map(x=>x[0])
 const holdValues=holdSorted.map(x=>x[1])
 
-if(ouChart) ouChart.destroy()
+if(!ouChart){
 
 ouChart=new Chart(document.getElementById("ouChart"),{
 
@@ -419,7 +431,15 @@ plugins:{legend:{display:false}}
 
 })
 
-if(holdChart) holdChart.destroy()
+}else{
+
+ouChart.data.labels=ouLabels
+ouChart.data.datasets[0].data=ouValues
+ouChart.update()
+
+}
+
+if(!holdChart){
 
 holdChart=new Chart(document.getElementById("holdChart"),{
 
@@ -438,6 +458,14 @@ plugins:{legend:{display:false}}
 }
 
 })
+
+}else{
+
+holdChart.data.labels=holdLabels
+holdChart.data.datasets[0].data=holdValues
+holdChart.update()
+
+}
 
 }
 
