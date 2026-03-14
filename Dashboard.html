@@ -146,13 +146,9 @@ font-size:13px
 <h1>Mínimos Requeridos VENCIDOS</h1>
 
 <p class="subtitulo">
-
-<a href="#" target="_blank">¿Cómo lo regularizo?</a>
-
+<a href="#">¿Cómo lo regularizo?</a>
 <br>
-
 Actualizado hasta el 06-Mar
-
 </p>
 
 </div>
@@ -171,7 +167,13 @@ Actualizado hasta el 06-Mar
 <option value="">Supervisor</option>
 </select>
 
+<select id="fOU5">
+<option value="">OU 5</option>
+</select>
+
 <button onclick="resetFiltros()">Reset</button>
+
+<button onclick="exportarExcel()">Exportar Excel</button>
 
 </div>
 
@@ -203,7 +205,7 @@ Actualizado hasta el 06-Mar
 
 </div>
 
-<table>
+<table id="tablaDatos">
 
 <thead>
 <tr>
@@ -227,6 +229,7 @@ Actualizado hasta el 06-Mar
 <script>
 
 let datosGlobal=[]
+let datosFiltrados=[]
 let ouChart
 let holdChart
 
@@ -252,10 +255,12 @@ function cargarFiltros(){
 
 const actSet=new Set()
 const supSet=new Set()
+const ou5Set=new Set()
 
 datosGlobal.forEach(d=>{
 if(d["Activity Type"]) actSet.add(d["Activity Type"])
 if(d.Supervisor) supSet.add(d.Supervisor)
+if(d["OU 5"]) ou5Set.add(d["OU 5"])
 })
 
 actSet.forEach(a=>{
@@ -264,6 +269,10 @@ document.getElementById("fActivity").innerHTML+=`<option>${a}</option>`
 
 supSet.forEach(s=>{
 document.getElementById("fSupervisor").innerHTML+=`<option>${s}</option>`
+})
+
+ou5Set.forEach(o=>{
+document.getElementById("fOU5").innerHTML+=`<option>${o}</option>`
 })
 
 }
@@ -299,17 +308,19 @@ const nombre=document.getElementById("fNombre").value.toLowerCase()
 const sap=document.getElementById("fSAP").value
 const act=document.getElementById("fActivity").value
 const sup=document.getElementById("fSupervisor").value
+const ou5=document.getElementById("fOU5").value
 
-let datos=datosGlobal.filter(d=>{
+datosFiltrados=datosGlobal.filter(d=>{
 
 return (!nombre || d.Nombre?.toLowerCase().includes(nombre))
 &&(!sap || d["SAP ID"]?.includes(sap))
 &&(!act || d["Activity Type"]===act)
 &&(!sup || d.Supervisor===sup)
+&&(!ou5 || d["OU 5"]===ou5)
 
 })
 
-renderizar(datos)
+renderizar(datosFiltrados)
 
 }
 
@@ -322,7 +333,19 @@ renderizar(datosGlobal)
 
 }
 
+function exportarExcel(){
+
+const tabla=document.getElementById("tablaDatos")
+
+const wb=XLSX.utils.table_to_book(tabla,{sheet:"Reporte"})
+
+XLSX.writeFile(wb,"Minimos_Requeridos.xlsx")
+
+}
+
 function renderizar(datos){
+
+datosFiltrados=datos
 
 let vencidas=0
 let ouCount={}
