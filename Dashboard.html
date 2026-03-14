@@ -32,6 +32,12 @@ margin-bottom:25px;
 text-align:center
 }
 
+.subtitulo{
+margin-top:8px;
+font-size:14px;
+opacity:0.9
+}
+
 .filters{
 background:white;
 padding:15px;
@@ -79,6 +85,12 @@ font-size:2em;
 font-weight:bold
 }
 
+.subcard{
+font-size:13px;
+opacity:0.9;
+margin-top:5px
+}
+
 .charts-grid{
 display:grid;
 grid-template-columns:1fr 1fr;
@@ -90,11 +102,11 @@ margin-bottom:30px
 background:white;
 padding:15px;
 border-radius:12px;
-height:250px
+height:240px
 }
 
 .chart-container canvas{
-height:200px !important
+height:180px !important
 }
 
 table{
@@ -127,6 +139,10 @@ font-size:13px
 
 <div class="header">
 <h1>Mínimos Requeridos VENCIDOS</h1>
+<div class="subtitulo">
+¿Cómo lo regularizo?<br>
+Actualizado hasta el 06-Mar
+</div>
 </div>
 
 <div class="filters">
@@ -155,6 +171,7 @@ font-size:13px
 
 <div class="stat-card bg-purple">
 <h3>CUMPLIMIENTO 93%</h3>
+<div class="subcard">Target 100%</div>
 </div>
 
 <div class="stat-card bg-red">
@@ -178,12 +195,12 @@ font-size:13px
 
 </div>
 
-<table id="tablaDatos">
+<table>
 
 <thead>
 <tr>
 <th>SAP ID</th>
-<th>Nombre y Apellido</th>
+<th>Nombre</th>
 <th>Certificación</th>
 <th>Activity Type</th>
 <th>Supervisor</th>
@@ -214,13 +231,7 @@ header:true,
 skipEmptyLines:true,
 complete:function(results){
 
-datosGlobal = results.data.map(r=>{
-let obj={}
-for(let k in r){
-obj[k.trim()] = r[k]
-}
-return obj
-})
+datosGlobal = results.data
 
 cargarFiltros()
 
@@ -246,15 +257,15 @@ if(d["OU 5"]) ou5Set.add(d["OU 5"])
 })
 
 actSet.forEach(v=>{
-document.getElementById("fActivity").innerHTML+=`<option>${v}</option>`
+fActivity.innerHTML+=`<option>${v}</option>`
 })
 
 supSet.forEach(v=>{
-document.getElementById("fSupervisor").innerHTML+=`<option>${v}</option>`
+fSupervisor.innerHTML+=`<option>${v}</option>`
 })
 
 ou5Set.forEach(v=>{
-document.getElementById("fOU5").innerHTML+=`<option>${v}</option>`
+fOU5.innerHTML+=`<option>${v}</option>`
 })
 
 }
@@ -286,11 +297,11 @@ return "Vigente"
 
 function aplicarFiltros(){
 
-const nombre=document.getElementById("fNombre").value.toLowerCase()
-const sap=document.getElementById("fSAP").value
-const act=document.getElementById("fActivity").value
-const sup=document.getElementById("fSupervisor").value
-const ou5=document.getElementById("fOU5").value
+const nombre=fNombre.value.toLowerCase()
+const sap=fSAP.value
+const act=fActivity.value
+const sup=fSupervisor.value
+const ou5=fOU5.value
 
 datosFiltrados = datosGlobal.filter(d=>{
 
@@ -302,7 +313,7 @@ return (!nombre || (d["Nombre"]||"").toLowerCase().includes(nombre))
 
 })
 
-renderizar(datosFiltrados)
+renderizar()
 
 }
 
@@ -317,16 +328,16 @@ aplicarFiltros()
 
 function exportarExcel(){
 
-const ws = XLSX.utils.json_to_sheet(datosFiltrados)
-const wb = XLSX.utils.book_new()
+const ws=XLSX.utils.json_to_sheet(datosFiltrados)
+const wb=XLSX.utils.book_new()
 
-XLSX.utils.book_append_sheet(wb, ws, "Reporte")
+XLSX.utils.book_append_sheet(wb,ws,"Reporte")
 
 XLSX.writeFile(wb,"Minimos_Requeridos.xlsx")
 
 }
 
-function renderizar(datos){
+function renderizar(){
 
 let vencidas=0
 let ouCount={}
@@ -335,15 +346,15 @@ let holdCount={}
 const tbody=document.getElementById("tableBody")
 tbody.innerHTML=""
 
-datos.forEach(d=>{
+datosFiltrados.forEach(d=>{
 
-const est = estado(d["Fecha_vencimiento"])
+const est=estado(d["Fecha_vencimiento"])
 
 if(est==="Vencida"){
 
 vencidas++
 
-const ou=d["OU 4"] || "Sin OU"
+const ou=d["OU 4"]||"Sin OU"
 
 ouCount[ou]=(ouCount[ou]||0)+1
 
@@ -370,7 +381,7 @@ tbody.innerHTML+=`
 
 })
 
-document.getElementById("pendientes").textContent=vencidas
+pendientes.textContent=vencidas
 
 crearGraficos(ouCount,holdCount)
 
@@ -378,40 +389,34 @@ crearGraficos(ouCount,holdCount)
 
 function crearGraficos(ouCount,holdCount){
 
-const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1])
+const ouLabels=Object.keys(ouCount)
+const ouValues=Object.values(ouCount)
 
-const labels=sortedOU.map(e=>e[0])
-const values=sortedOU.map(e=>e[1])
-
-const colors=values.map((v,i)=> i<3 ? "#ef473a" : "#f7971e")
+const colors=ouValues.map((v,i)=> i<3 ? "#ef473a" : "#f7971e")
 
 if(ouChart) ouChart.destroy()
 
-ouChart=new Chart(document.getElementById("ouChart"),{
+ouChart=new Chart(ouChart=document.getElementById("ouChart"),{
 
 type:"bar",
 
 data:{
-labels:labels,
+labels:ouLabels,
 datasets:[{
-data:values,
-backgroundColor:colors,
-barThickness:12
+data:ouValues,
+backgroundColor:colors
 }]
 },
 
 options:{
 indexAxis:'y',
-plugins:{legend:{display:false}},
-scales:{y:{ticks:{autoSkip:false}}}
+plugins:{legend:{display:false}}
 }
 
 })
 
-const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1])
-
-const hLabels=sortedHold.map(e=>e[0])
-const hValues=sortedHold.map(e=>e[1])
+const hLabels=Object.keys(holdCount)
+const hValues=Object.values(holdCount)
 
 if(holdChart) holdChart.destroy()
 
