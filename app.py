@@ -1,41 +1,499 @@
-import streamlit as st
-import pandas as pd
-import streamlit.components.v1 as components
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-st.set_page_config(layout="wide")
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-st.markdown("""
 <style>
 
-.block-container {
-padding-top: 0rem !important;
-padding-bottom: 0rem !important;
-padding-left: 0rem !important;
-padding-right: 0rem !important;
+body{font-family:Segoe UI;background:#f4f6fa;padding:20px}
+.container{max-width:1500px;margin:auto}
+
+.header{
+background:linear-gradient(135deg,#6a11cb,#2575fc);
+color:white;
+padding:25px;
+border-radius:12px;
+margin-bottom:25px;
+text-align:center;
 }
 
-.main {padding:0rem !important;}
+.subtitulo{
+margin-top:10px;
+font-size:14px;
+line-height:1.6;
+}
 
-header {visibility:hidden;}
-footer {visibility:hidden;}
+.subtitulo a{
+color:white;
+text-decoration:underline;
+}
+
+.filters{
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:25px;
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+}
+
+.filters input,.filters select{
+padding:8px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+.filters button{
+padding:8px 15px;
+border:none;
+border-radius:8px;
+background:#6a11cb;
+color:white;
+cursor:pointer;
+}
+
+.stats-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+margin-bottom:30px;
+}
+
+.stat-card{
+color:white;
+padding:20px;
+border-radius:12px;
+text-align:center;
+}
+
+.bg-purple{background:linear-gradient(135deg,#6a11cb,#2575fc)}
+.bg-red{background:linear-gradient(135deg,#cb2d3e,#ef473a)}
+
+.number{
+font-size:2em;
+font-weight:bold;
+}
+
+.subtext{
+font-size:13px;
+margin-top:6px;
+}
+
+.charts-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+margin-bottom:30px;
+}
+
+.chart-container{
+background:white;
+padding:15px;
+border-radius:12px;
+height:225px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+}
+
+thead{
+background:#6a11cb;
+color:white;
+}
+
+th,td{
+padding:8px;
+border-bottom:1px solid #eee;
+font-size:13px;
+}
+
+.estado-vigente{color:green;font-weight:bold}
+.estado-porvencer{color:orange;font-weight:bold}
+.estado-vencida{color:red;font-weight:bold}
 
 </style>
-""", unsafe_allow_html=True)
+</head>
 
+<body>
 
-# Leer CSV
-df = pd.read_csv("certificaciones.csv", encoding="latin-1")
+<div class="container">
 
-csv_string = df.to_csv(index=False)
+<div class="header">
+<h1>Mínimos Requeridos VENCIDOS</h1>
 
+<p class="subtitulo">
 
-# Cargar HTML
-with open("Dashboard.html", "r", encoding="utf-8") as f:
-    html_code = f.read()
+<a href="https://pwbi.tenaris.net/" target="_blank">
+¿Cómo lo regularizo?
+</a>
 
-html_code = html_code.replace(
-"</head>",
-f"<script>window.csvData=`{csv_string}`;</script></head>"
-)
+<br>
+Actualizado hasta el 06-Mar
 
-components.html(html_code, height=1400, scrolling=True)
+<br><br>
+
+<a href="https://app.powerbi.com/" target="_blank">
+🔗 Link al BI de mínimos requeridos
+</a>
+
+</p>
+</div>
+
+<div class="filters">
+
+<input type="text" id="filtroNombre" placeholder="Nombre">
+
+<input type="text" id="filtroSAP" placeholder="SAP ID">
+
+<select id="filtroActivity">
+<option value="">Activity Type</option>
+</select>
+
+<select id="filtroCertType">
+<option value="">Certification Type</option>
+</select>
+
+<button onclick="resetTotal()">Reset</button>
+
+<button onclick="exportarExcel()">Exportar Excel</button>
+
+</div>
+
+<div class="stats-grid">
+
+<div class="stat-card bg-purple">
+<h3>CUMPLIMIENTO 93%</h3>
+<div class="subtext">Target: 100%</div>
+</div>
+
+<div class="stat-card bg-red">
+<h3>Requisitos vencidos</h3>
+<div class="number" id="pendientes">0</div>
+</div>
+
+</div>
+
+<div class="charts-grid">
+
+<div class="chart-container">
+<h3>Pendientes por OU 4</h3>
+<canvas id="ouChart"></canvas>
+</div>
+
+<div class="chart-container">
+<h3>On Hold</h3>
+<canvas id="holdChart"></canvas>
+</div>
+
+</div>
+
+<table>
+
+<thead>
+<tr>
+<th>Nombre</th>
+<th>SAP ID</th>
+<th>Certification Type</th>
+<th>Certificacion</th>
+<th>Activity Type</th>
+<th>OU 4</th>
+<th>Estado</th>
+<th>Comentarios</th>
+</tr>
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+let datosGlobal=[]
+let ouChart
+let holdChart
+let filtroOU=null
+let filtroHold=null
+
+function procesarCSV(csv){
+
+Papa.parse(csv,{
+header:true,
+skipEmptyLines:true,
+complete:function(results){
+
+datosGlobal=results.data
+
+cargarOpciones()
+
+renderizar(datosGlobal)
+
+}
+})
+
+}
+
+function cargarOpciones(){
+
+const actSet=new Set()
+const certSet=new Set()
+
+datosGlobal.forEach(d=>{
+
+if(d["Activity Type"]) actSet.add(d["Activity Type"])
+
+if(d["Certification Type"]) certSet.add(d["Certification Type"])
+
+})
+
+actSet.forEach(a=>{
+document.getElementById("filtroActivity").innerHTML+=`<option>${a}</option>`
+})
+
+certSet.forEach(c=>{
+document.getElementById("filtroCertType").innerHTML+=`<option>${c}</option>`
+})
+
+}
+
+function calcularEstado(fechaStr){
+
+if(!fechaStr) return "Vencida"
+
+const fecha=new Date(fechaStr)
+
+if(isNaN(fecha)) return "Vencida"
+
+const hoy=new Date()
+hoy.setHours(0,0,0,0)
+
+const diff=(fecha-hoy)/(1000*60*60*24)
+
+if(diff<0) return "Vencida"
+if(diff<=90) return "Por Vencer"
+
+return "Vigente"
+
+}
+
+function aplicarFiltros(){
+
+let datos=datosGlobal
+
+const nombre=document.getElementById("filtroNombre").value.toLowerCase()
+const sap=document.getElementById("filtroSAP").value.toLowerCase()
+const act=document.getElementById("filtroActivity").value
+const cert=document.getElementById("filtroCertType").value
+
+datos=datos.filter(d=>{
+
+return (!nombre||d.Nombre?.toLowerCase().includes(nombre))
+&&(!sap||d["SAP ID"]?.toLowerCase().includes(sap))
+&&(!act||d["Activity Type"]===act)
+&&(!cert||d["Certification Type"]===cert)
+
+})
+
+if(filtroOU){
+datos=datos.filter(d=>d["OU 4"]===filtroOU)
+}
+
+if(filtroHold){
+datos=datos.filter(d=>d.Comentarios===filtroHold)
+}
+
+renderizar(datos)
+
+}
+
+function resetTotal(){
+
+document.querySelectorAll("input,select").forEach(e=>e.value="")
+
+filtroOU=null
+filtroHold=null
+
+renderizar(datosGlobal)
+
+}
+
+function renderizar(datos){
+
+let ven=0
+
+let ouCount={}
+let holdCount={}
+
+const tbody=document.getElementById("tableBody")
+
+tbody.innerHTML=""
+
+datos.forEach(d=>{
+
+const estado=calcularEstado(d["Fecha_vencimiento"])
+
+if(estado==="Vencida") ven++
+
+if(estado!=="Vigente"){
+
+const ou=d["OU 4"]||"Sin OU"
+
+ouCount[ou]=(ouCount[ou]||0)+1
+
+}
+
+if(d.Comentarios){
+
+holdCount[d.Comentarios]=(holdCount[d.Comentarios]||0)+1
+
+}
+
+let clase=""
+
+if(estado==="Vigente")clase="estado-vigente"
+if(estado==="Por Vencer")clase="estado-porvencer"
+if(estado==="Vencida")clase="estado-vencida"
+
+tbody.innerHTML+=`
+
+<tr>
+<td>${d.Nombre||""}</td>
+<td>${d["SAP ID"]||""}</td>
+<td>${d["Certification Type"]||""}</td>
+<td>${d.Certificacion||""}</td>
+<td>${d["Activity Type"]||""}</td>
+<td>${d["OU 4"]||""}</td>
+<td class="${clase}">${estado}</td>
+<td>${d.Comentarios||""}</td>
+</tr>
+
+`
+
+})
+
+document.getElementById("pendientes").textContent=ven
+
+crearGraficos(ouCount,holdCount)
+
+}
+
+function crearGraficos(ouCount,holdCount){
+
+const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1])
+
+const ouLabels=sortedOU.map(e=>e[0])
+const ouValues=sortedOU.map(e=>e[1])
+
+const colores=ouValues.map((v,i)=>i<3?"#ef473a":"#f7971e")
+
+if(ouChart) ouChart.destroy()
+
+ouChart=new Chart(document.getElementById("ouChart"),{
+
+type:"bar",
+
+data:{
+labels:ouLabels,
+datasets:[{
+data:ouValues,
+backgroundColor:colores
+}]
+},
+
+options:{
+indexAxis:'y',
+responsive:true,
+maintainAspectRatio:false,
+plugins:{legend:{display:false}},
+scales:{y:{ticks:{autoSkip:false}}},
+onClick:(evt,elements)=>{
+
+if(elements.length>0){
+
+const index=elements[0].index
+
+const seleccionado=ouLabels[index]
+
+filtroOU=(filtroOU===seleccionado)?null:seleccionado
+
+aplicarFiltros()
+
+}
+
+}
+}
+
+})
+
+const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1])
+
+const holdLabels=sortedHold.map(e=>e[0])
+const holdValues=sortedHold.map(e=>e[1])
+
+if(holdChart) holdChart.destroy()
+
+holdChart=new Chart(document.getElementById("holdChart"),{
+
+type:"bar",
+
+data:{
+labels:holdLabels,
+datasets:[{
+data:holdValues,
+backgroundColor:"#6a11cb"
+}]
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{legend:{display:false}},
+onClick:(evt,elements)=>{
+
+if(elements.length>0){
+
+const index=elements[0].index
+
+const seleccionado=holdLabels[index]
+
+filtroHold=(filtroHold===seleccionado)?null:seleccionado
+
+aplicarFiltros()
+
+}
+
+}
+
+}
+
+})
+
+}
+
+document.addEventListener("input",aplicarFiltros)
+document.addEventListener("change",aplicarFiltros)
+
+window.onload=function(){
+
+if(window.csvData){
+
+procesarCSV(window.csvData)
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
