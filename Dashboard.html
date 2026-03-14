@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -11,176 +9,78 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
+body{font-family:Segoe UI;background:#f4f6fa;padding:20px}
+.container{max-width:1500px;margin:auto}
+.header{background:linear-gradient(135deg,#6a11cb,#2575fc);color:white;padding:25px;border-radius:12px;margin-bottom:25px;text-align:center;}
+.subtitulo{margin-top:10px;font-size:14px;opacity:0.95;line-height:1.6;}
+.subtitulo a{color:#ffffff;text-decoration:underline;font-weight:500;}
 
-body{
-font-family:Segoe UI;
-background:#f4f6fa;
-padding:20px
-}
+.filters{background:white;padding:15px;border-radius:12px;margin-bottom:25px;display:flex;gap:15px;flex-wrap:wrap}
+.filters input,.filters select{padding:8px;border-radius:8px;border:1px solid #ccc}
+.filters button{padding:8px 15px;border:none;border-radius:8px;background:#6a11cb;color:white;cursor:pointer}
 
-.container{
-max-width:1500px;
-margin:auto
-}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-bottom:30px}
 
-.header{
-background:linear-gradient(135deg,#6a11cb,#2575fc);
-color:white;
-padding:25px;
-border-radius:12px;
-margin-bottom:25px;
-text-align:center
-}
+.stat-card{color:white;padding:20px;border-radius:12px;text-align:center}
+.stat-card h3{margin:0}
+.stat-card .number{font-size:2em;font-weight:bold}
+.subtext{font-size:13px;margin-top:6px;opacity:0.9}
 
-.subtitulo{
-margin-top:8px;
-font-size:14px;
-opacity:0.95
-}
+.bg-purple{background:linear-gradient(135deg,#6a11cb,#2575fc);}
+.bg-red{background:linear-gradient(135deg,#cb2d3e,#ef473a);}
 
-.subtitulo a{
-color:white;
-font-weight:bold;
-text-decoration:underline
-}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px}
+.chart-container{background:white;padding:15px;border-radius:12px;height:225px;}
 
-.filters{
-background:white;
-padding:15px;
-border-radius:12px;
-margin-bottom:25px;
-display:flex;
-gap:10px;
-flex-wrap:wrap
-}
+table{width:100%;border-collapse:collapse;background:white}
+thead{background:#6a11cb;color:white}
 
-.filters input,.filters select{
-padding:8px;
-border-radius:8px;
-border:1px solid #ccc
-}
-
-.filters button{
-padding:8px 15px;
-border:none;
-border-radius:8px;
-background:#6a11cb;
-color:white;
-cursor:pointer
-}
-
-.stats-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:20px;
-margin-bottom:30px
-}
-
-.stat-card{
-color:white;
-padding:20px;
-border-radius:12px;
-text-align:center
-}
-
-.bg-purple{background:linear-gradient(135deg,#6a11cb,#2575fc)}
-.bg-red{background:linear-gradient(135deg,#cb2d3e,#ef473a)}
-
-.number{
-font-size:2em;
-font-weight:bold
-}
-
-.subcard{
-font-size:13px;
-margin-top:5px;
-opacity:0.9
-}
-
-.charts-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px;
-margin-bottom:30px
-}
-
-.chart-container{
-background:white;
-padding:15px;
-border-radius:12px;
-height:240px
-}
-
-.chart-container canvas{
-height:180px !important
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-background:white
-}
-
-thead{
-background:#6a11cb;
-color:white
-}
-
-th,td{
-padding:8px;
-border-bottom:1px solid #eee;
-font-size:13px
-}
+th,td{padding:8px;border-bottom:1px solid #eee;font-size:13px}
 
 .estado-vigente{color:green;font-weight:bold}
+.estado-porvencer{color:orange;font-weight:bold}
 .estado-vencida{color:red;font-weight:bold}
 
 </style>
-
 </head>
 
 <body>
-
 <div class="container">
 
 <div class="header">
-
 <h1>Mínimos Requeridos VENCIDOS</h1>
 
-<div class="subtitulo">
-
-¿Cómo lo regularizo?<br>
-
-<a href="LINK_INSTRUCTIVO" target="_blank">Ver instructivo</a>
-
-|
-
-<a href="LINK_PROCEDIMIENTO" target="_blank">Ver procedimiento</a>
-
-</div>
-
+<p class="subtitulo">
+<a href="https://pwbi.tenaris.net/reports/powerbi/Business%20Analytics%20Reports/Regions/Southern%20Cone/TU%20Argentina/INFO%20TU" target="_blank">
+¿Cómo lo regularizo?
+</a>
+<br>
+Actualizado hasta el 06-Mar
+<br><br>
+<a href="https://app.powerbi.com/groups/3f2e9d83-3263-4d60-9f8b-6c867912acc0/reports/f8180ab6-3019-45e8-9f6f-b40aa6ca4e91/52c739b0d08235bbec69?ctid=a054342c-6f8c-4378-ad61-a8ad00f2b736&experience=power-bi&chromeless=true" target="_blank">
+🔗 Link al BI de mínimos requeridos
+</a>
+</p>
 </div>
 
 <div class="filters">
 
-<input id="fNombre" placeholder="Nombre">
+<input type="text" id="filtroNombre" placeholder="Nombre">
+<input type="text" id="filtroSAP" placeholder="SAP ID">
 
-<input id="fSAP" placeholder="SAP ID">
-
-<select id="fActivity">
+<select id="filtroActivity">
 <option value="">Activity Type</option>
 </select>
 
-<select id="fSupervisor">
-<option value="">Supervisor</option>
+<select id="filtroCertType">
+<option value="">Certification Type</option>
 </select>
 
-<select id="fOU5">
+<select id="filtroOU5">
 <option value="">OU 5</option>
 </select>
 
-<button onclick="resetFiltros()">Reset</button>
-
+<button onclick="resetTotal()">Reset</button>
 <button onclick="exportarExcel()">Exportar Excel</button>
 
 </div>
@@ -189,7 +89,7 @@ font-size:13px
 
 <div class="stat-card bg-purple">
 <h3>CUMPLIMIENTO 93%</h3>
-<div class="subcard">Target 100%</div>
+<div class="subtext">Target: 100%</div>
 </div>
 
 <div class="stat-card bg-red">
@@ -217,14 +117,16 @@ font-size:13px
 
 <thead>
 <tr>
+
 <th>SAP ID</th>
 <th>Nombre</th>
-<th>Certificación</th>
+<th>Certificacion</th>
 <th>Activity Type</th>
 <th>Supervisor</th>
 <th>OU 4</th>
 <th>Estado</th>
 <th>Comentarios</th>
+
 </tr>
 </thead>
 
@@ -236,246 +138,134 @@ font-size:13px
 
 <script>
 
-let datosGlobal=[]
-let datosFiltrados=[]
+let datosGlobal=[];
 
-let ouChart=null
-let holdChart=null
+function exportarExcel(){
+const tabla=document.querySelector("table");
+const wb=XLSX.utils.table_to_book(tabla,{sheet:"Reporte"});
+XLSX.writeFile(wb,"Minimos_Requeridos.xlsx");
+}
 
 function procesarCSV(csv){
+
+csv=csv.replace(/^\uFEFF/,"");
 
 Papa.parse(csv,{
 header:true,
 skipEmptyLines:true,
 complete:function(results){
 
-datosGlobal = results.data
+datosGlobal=results.data;
 
-cargarFiltros()
+cargarOpciones();
 
-aplicarFiltros()
-
-}
-})
+renderizar(datosGlobal);
 
 }
+});
 
-function cargarFiltros(){
+}
 
-const act=new Set()
-const sup=new Set()
-const ou5=new Set()
+function cargarOpciones(){
+
+const actSet=new Set();
+const certSet=new Set();
+const ou5Set=new Set();
 
 datosGlobal.forEach(d=>{
 
-if(d["Activity Type"]) act.add(d["Activity Type"])
-if(d["Supervisor"]) sup.add(d["Supervisor"])
-if(d["OU 5"]) ou5.add(d["OU 5"])
+if(d["Activity Type"]) actSet.add(d["Activity Type"]);
+if(d["Certification Type"]) certSet.add(d["Certification Type"]);
+if(d["OU 5"]) ou5Set.add(d["OU 5"]);
 
-})
+});
 
-act.forEach(v=>fActivity.innerHTML+=`<option>${v}</option>`)
-sup.forEach(v=>fSupervisor.innerHTML+=`<option>${v}</option>`)
-ou5.forEach(v=>fOU5.innerHTML+=`<option>${v}</option>`)
+actSet.forEach(a=>{
+document.getElementById("filtroActivity").innerHTML+=`<option>${a}</option>`;
+});
 
-}
+certSet.forEach(c=>{
+document.getElementById("filtroCertType").innerHTML+=`<option>${c}</option>`;
+});
 
-function parseFecha(f){
-
-if(!f) return null
-
-const p=f.split("/")
-
-return new Date(p[2],p[1]-1,p[0])
-
-}
-
-function estado(f){
-
-const fecha=parseFecha(f)
-
-if(!fecha) return "Vencida"
-
-const hoy=new Date()
-hoy.setHours(0,0,0,0)
-
-return fecha<hoy?"Vencida":"Vigente"
+ou5Set.forEach(o=>{
+document.getElementById("filtroOU5").innerHTML+=`<option>${o}</option>`;
+});
 
 }
 
 function aplicarFiltros(){
 
-const nombre=fNombre.value.toLowerCase()
-const sap=fSAP.value
-const act=fActivity.value
-const sup=fSupervisor.value
-const ou5=fOU5.value
+let datos=datosGlobal;
 
-datosFiltrados = datosGlobal.filter(d=>
+const nombre=document.getElementById("filtroNombre").value.toLowerCase();
+const sap=document.getElementById("filtroSAP").value.toLowerCase();
+const act=document.getElementById("filtroActivity").value;
+const cert=document.getElementById("filtroCertType").value;
+const ou5=document.getElementById("filtroOU5").value;
 
-(!nombre || (d["Nombre"]||"").toLowerCase().includes(nombre)) &&
-(!sap || (d["SAP ID"]||"").includes(sap)) &&
-(!act || d["Activity Type"]===act) &&
-(!sup || d["Supervisor"]===sup) &&
-(!ou5 || d["OU 5"]===ou5)
+datos=datos.filter(d=>{
 
-)
+return (!nombre||d.Nombre?.toLowerCase().includes(nombre))
+&&(!sap||d["SAP ID"]?.toLowerCase().includes(sap))
+&&(!act||d["Activity Type"]===act)
+&&(!cert||d["Certification Type"]===cert)
+&&(!ou5||d["OU 5"]===ou5);
 
-renderizar()
+});
 
-}
-
-function resetFiltros(){
-
-document.querySelectorAll("input").forEach(e=>e.value="")
-document.querySelectorAll("select").forEach(e=>e.value="")
-
-aplicarFiltros()
+renderizar(datos);
 
 }
 
-function exportarExcel(){
+function resetTotal(){
 
-const ws=XLSX.utils.json_to_sheet(datosFiltrados)
-const wb=XLSX.utils.book_new()
+document.querySelectorAll("input,select").forEach(e=>e.value="");
 
-XLSX.utils.book_append_sheet(wb,ws,"Reporte")
-
-XLSX.writeFile(wb,"Minimos_Requeridos.xlsx")
+renderizar(datosGlobal);
 
 }
 
-function renderizar(){
+function renderizar(datos){
 
-const tbody=document.getElementById("tableBody")
-tbody.innerHTML=""
+const tbody=document.getElementById("tableBody");
 
-let vencidas=0
+tbody.innerHTML="";
 
-datosFiltrados.forEach(d=>{
-
-const est=estado(d["Fecha_vencimiento"])
-
-if(est==="Vencida") vencidas++
+datos.forEach(d=>{
 
 tbody.innerHTML+=`
+
 <tr>
+
 <td>${d["SAP ID"]||""}</td>
-<td>${d["Nombre"]||""}</td>
-<td>${d["Certificacion"]||""}</td>
+<td>${d.Nombre||""}</td>
+<td>${d.Certificacion||""}</td>
 <td>${d["Activity Type"]||""}</td>
-<td>${d["Supervisor"]||""}</td>
+<td>${d.Supervisor||""}</td>
 <td>${d["OU 4"]||""}</td>
-<td class="${est==="Vencida"?"estado-vencida":"estado-vigente"}">${est}</td>
-<td>${d["Comentarios"]||""}</td>
+<td></td>
+<td>${d.Comentarios||""}</td>
+
 </tr>
-`
 
-})
+`;
 
-pendientes.textContent=vencidas
+});
 
-actualizarGraficos()
-
-}
-
-function actualizarGraficos(){
-
-let ouCount={}
-let holdCount={}
-
-datosFiltrados.forEach(d=>{
-
-if(estado(d["Fecha_vencimiento"])==="Vencida"){
-
-const ou=d["OU 4"]||"Sin OU"
-ouCount[ou]=(ouCount[ou]||0)+1
+document.getElementById("pendientes").textContent=datos.length;
 
 }
 
-if(d["Comentarios"]){
-
-holdCount[d["Comentarios"]] = (holdCount[d["Comentarios"]]||0)+1
-
-}
-
-})
-
-const ouSorted = Object.entries(ouCount).sort((a,b)=>b[1]-a[1])
-const holdSorted = Object.entries(holdCount).sort((a,b)=>b[1]-a[1])
-
-const ouLabels=ouSorted.map(x=>x[0])
-const ouValues=ouSorted.map(x=>x[1])
-
-const holdLabels=holdSorted.map(x=>x[0])
-const holdValues=holdSorted.map(x=>x[1])
-
-if(!ouChart){
-
-ouChart=new Chart(document.getElementById("ouChart"),{
-
-type:"bar",
-
-data:{
-labels:ouLabels,
-datasets:[{
-data:ouValues,
-backgroundColor:"#ef473a"
-}]
-},
-
-options:{
-indexAxis:"y",
-plugins:{legend:{display:false}}
-}
-
-})
-
-}else{
-
-ouChart.data.labels=ouLabels
-ouChart.data.datasets[0].data=ouValues
-ouChart.update()
-
-}
-
-if(!holdChart){
-
-holdChart=new Chart(document.getElementById("holdChart"),{
-
-type:"bar",
-
-data:{
-labels:holdLabels,
-datasets:[{
-data:holdValues,
-backgroundColor:"#6a11cb"
-}]
-},
-
-options:{
-plugins:{legend:{display:false}}
-}
-
-})
-
-}else{
-
-holdChart.data.labels=holdLabels
-holdChart.data.datasets[0].data=holdValues
-holdChart.update()
-
-}
-
-}
-
-document.addEventListener("input",aplicarFiltros)
-document.addEventListener("change",aplicarFiltros)
+document.addEventListener("input",aplicarFiltros);
+document.addEventListener("change",aplicarFiltros);
 
 window.onload=function(){
 
 if(window.csvData){
-procesarCSV(window.csvData)
+
+procesarCSV(window.csvData);
+
 }
 
 }
