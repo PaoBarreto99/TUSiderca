@@ -36,7 +36,7 @@ csv_string = df.to_csv(index=False)
 with open("Dashboard.html", "r", encoding="utf-8") as f:
     html_code = f.read()
 
-# Inyectar CSV al HTML
+# Inyectar CSV
 html_code = html_code.replace(
     "</head>",
     f"<script>window.csvData = `{csv_string}`;</script></head>"
