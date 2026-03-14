@@ -9,8 +9,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
-body{font-family:Segoe UI;background:#f4f6fa;padding:20px}
-.container{max-width:1500px;margin:auto}
+
+body{
+font-family:Segoe UI;
+background:#f4f6fa;
+padding:20px
+}
+
+.container{
+max-width:1500px;
+margin:auto
+}
 
 .header{
 background:linear-gradient(135deg,#6a11cb,#2575fc);
@@ -18,19 +27,19 @@ color:white;
 padding:25px;
 border-radius:12px;
 margin-bottom:25px;
-text-align:center;
+text-align:center
 }
 
 .subtitulo{
 margin-top:10px;
 font-size:14px;
 opacity:0.95;
-line-height:1.6;
+line-height:1.6
 }
 
 .subtitulo a{
 color:white;
-text-decoration:underline;
+text-decoration:underline
 }
 
 .filters{
@@ -74,7 +83,7 @@ text-align:center
 
 .stat-card h3{margin:0}
 
-.stat-card .number{
+.number{
 font-size:2em;
 font-weight:bold
 }
@@ -98,7 +107,12 @@ margin-bottom:30px
 .chart-container{
 background:white;
 padding:15px;
-border-radius:12px
+border-radius:12px;
+height:250px
+}
+
+.chart-container canvas{
+height:200px !important
 }
 
 table{
@@ -150,20 +164,6 @@ Actualizado hasta el 06-Mar
 </a>
 
 </p>
-
-</div>
-
-<div class="filters">
-
-<input type="text" id="filtroNombre" placeholder="Nombre">
-<input type="text" id="filtroSAP" placeholder="SAP ID">
-
-<select id="filtroActivity"><option value="">Activity Type</option></select>
-<select id="filtroCertType"><option value="">Certification Type</option></select>
-<select id="filtroOU5"><option value="">OU 5</option></select>
-
-<button onclick="resetTotal()">Reset</button>
-<button onclick="exportarExcel()">Exportar Excel</button>
 
 </div>
 
@@ -220,14 +220,6 @@ Actualizado hasta el 06-Mar
 
 let datosGlobal=[]
 let ouChart,holdChart
-let filtroOU=null
-let filtroHold=null
-
-function exportarExcel(){
-const tabla=document.querySelector("table")
-const wb=XLSX.utils.table_to_book(tabla,{sheet:"Reporte"})
-XLSX.writeFile(wb,"Minimos_Requeridos.xlsx")
-}
 
 function procesarCSV(csv){
 
@@ -238,51 +230,23 @@ header:true,
 skipEmptyLines:true,
 complete:function(results){
 datosGlobal=results.data
-cargarOpciones()
 renderizar(datosGlobal)
 }
 })
-}
-
-function cargarOpciones(){
-
-const actSet=new Set()
-const certSet=new Set()
-const ou5Set=new Set()
-
-datosGlobal.forEach(d=>{
-if(d["Activity Type"]) actSet.add(d["Activity Type"])
-if(d["Certification Type"]) certSet.add(d["Certification Type"])
-if(d["OU 5"]) ou5Set.add(d["OU 5"])
-})
-
-actSet.forEach(a=>{
-document.getElementById("filtroActivity").innerHTML+=`<option>${a}</option>`
-})
-
-certSet.forEach(c=>{
-document.getElementById("filtroCertType").innerHTML+=`<option>${c}</option>`
-})
-
-ou5Set.forEach(o=>{
-document.getElementById("filtroOU5").innerHTML+=`<option>${o}</option>`
-})
 
 }
 
-function parseFecha(fechaStr){
+function parseFecha(f){
 
-if(!fechaStr) return null
-const partes=fechaStr.split("/")
-if(partes.length!==3) return null
-return new Date(partes[2],partes[0]-1,partes[1])
+if(!f) return null
+const p=f.split("/")
+return new Date(p[2],p[0]-1,p[1])
 
 }
 
-function calcularEstado(fechaStr){
+function estado(f){
 
-const fecha=parseFecha(fechaStr)
-
+const fecha=parseFecha(f)
 if(!fecha) return "Vencida"
 
 const hoy=new Date()
@@ -297,38 +261,6 @@ return "Vigente"
 
 }
 
-function aplicarFiltros(){
-
-let datos=datosGlobal
-
-const nombre=document.getElementById("filtroNombre").value.toLowerCase()
-const sap=document.getElementById("filtroSAP").value.toLowerCase()
-const act=document.getElementById("filtroActivity").value
-const cert=document.getElementById("filtroCertType").value
-const ou5=document.getElementById("filtroOU5").value
-
-datos=datos.filter(d=>{
-return (!nombre||d.Nombre?.toLowerCase().includes(nombre))
-&&(!sap||d["SAP ID"]?.toLowerCase().includes(sap))
-&&(!act||d["Activity Type"]===act)
-&&(!cert||d["Certification Type"]===cert)
-&&(!ou5||d["OU 5"]===ou5)
-})
-
-if(filtroOU){datos=datos.filter(d=>d["OU 4"]===filtroOU)}
-if(filtroHold){datos=datos.filter(d=>d.Comentarios===filtroHold)}
-
-renderizar(datos)
-
-}
-
-function resetTotal(){
-document.querySelectorAll("input,select").forEach(e=>e.value="")
-filtroOU=null
-filtroHold=null
-renderizar(datosGlobal)
-}
-
 function renderizar(datos){
 
 let ven=0
@@ -340,11 +272,11 @@ tbody.innerHTML=""
 
 datos.forEach(d=>{
 
-const estado=calcularEstado(d["Fecha_vencimiento"])
+const est=estado(d["Fecha_vencimiento"])
 
-if(estado==="Vencida") ven++
+if(est==="Vencida") ven++
 
-if(estado!=="Vigente"){
+if(est!=="Vigente"){
 const ou=d["OU 4"]||"Sin OU"
 ouCount[ou]=(ouCount[ou]||0)+1
 }
@@ -354,9 +286,9 @@ holdCount[d.Comentarios]=(holdCount[d.Comentarios]||0)+1
 }
 
 let clase=""
-if(estado==="Vigente")clase="estado-vigente"
-if(estado==="Por Vencer")clase="estado-porvencer"
-if(estado==="Vencida")clase="estado-vencida"
+if(est==="Vigente")clase="estado-vigente"
+if(est==="Por Vencer")clase="estado-porvencer"
+if(est==="Vencida")clase="estado-vencida"
 
 tbody.innerHTML+=`
 <tr>
@@ -366,7 +298,7 @@ tbody.innerHTML+=`
 <td>${d["Activity Type"]||""}</td>
 <td>${d.Supervisor||""}</td>
 <td>${d["OU 4"]||""}</td>
-<td class="${clase}">${estado}</td>
+<td class="${clase}">${est}</td>
 <td>${d.Comentarios||""}</td>
 </tr>
 `
@@ -382,13 +314,11 @@ crearGraficos(ouCount,holdCount)
 function crearGraficos(ouCount,holdCount){
 
 const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1])
-const ouLabels=sortedOU.map(e=>e[0])
-const ouValues=sortedOU.map(e=>e[1])
 
-const colores=ouValues.map((v,i)=> i<3 ? "#ef473a" : "#f7971e")
+const labels=sortedOU.map(e=>e[0])
+const values=sortedOU.map(e=>e[1])
 
-const altura=Math.max(300,ouLabels.length*35)
-document.getElementById("ouChart").parentElement.style.height=altura+"px"
+const colors=values.map((v,i)=> i<3 ? "#ef473a" : "#f7971e")
 
 if(ouChart) ouChart.destroy()
 
@@ -397,51 +327,23 @@ ouChart=new Chart(document.getElementById("ouChart"),{
 type:"bar",
 
 data:{
-labels:ouLabels,
-datasets:[{data:ouValues,backgroundColor:colores}]
+labels:labels,
+datasets:[{
+data:values,
+backgroundColor:colors,
+barThickness:12
+}]
 },
 
 options:{
 indexAxis:'y',
-responsive:true,
-maintainAspectRatio:false,
 plugins:{legend:{display:false}},
 scales:{y:{ticks:{autoSkip:false}}}
 }
 
 })
 
-const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1])
-const holdLabels=sortedHold.map(e=>e[0])
-const holdValues=sortedHold.map(e=>e[1])
-
-const altura2=Math.max(300,holdLabels.length*35)
-document.getElementById("holdChart").parentElement.style.height=altura2+"px"
-
-if(holdChart) holdChart.destroy()
-
-holdChart=new Chart(document.getElementById("holdChart"),{
-
-type:"bar",
-
-data:{
-labels:holdLabels,
-datasets:[{data:holdValues}]
-},
-
-options:{
-responsive:true,
-maintainAspectRatio:false,
-plugins:{legend:{display:false}},
-scales:{x:{ticks:{autoSkip:false}}}
 }
-
-})
-
-}
-
-document.addEventListener("input",aplicarFiltros)
-document.addEventListener("change",aplicarFiltros)
 
 window.onload=function(){
 if(window.csvData){
