@@ -1,32 +1,316 @@
-import streamlit as st
-import pandas as pd
-import streamlit.components.v1 as components
+<!DOCTYPE html>
+<html lang="es">
+<head>
 
-st.set_page_config(layout="wide")
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-st.markdown("""
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <style>
-.block-container{
-padding-top:0rem;
-padding-bottom:0rem;
-padding-left:0rem;
-padding-right:0rem;
+
+body{
+font-family:Segoe UI;
+background:#f4f6fa;
+padding:20px
 }
-header{visibility:hidden;}
-footer{visibility:hidden;}
+
+.container{
+max-width:1500px;
+margin:auto
+}
+
+.header{
+background:linear-gradient(135deg,#6a11cb,#2575fc);
+color:white;
+padding:25px;
+border-radius:12px;
+margin-bottom:25px;
+text-align:center
+}
+
+.subtitulo{
+font-size:14px;
+line-height:1.6;
+margin-top:10px
+}
+
+.subtitulo a{
+color:white;
+text-decoration:underline
+}
+
+.filters{
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:25px;
+display:flex;
+gap:15px;
+flex-wrap:wrap
+}
+
+.filters input,.filters select{
+padding:8px;
+border-radius:8px;
+border:1px solid #ccc
+}
+
+.filters button{
+padding:8px 15px;
+border:none;
+border-radius:8px;
+background:#6a11cb;
+color:white;
+cursor:pointer
+}
+
+.stats-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+margin-bottom:30px
+}
+
+.stat-card{
+color:white;
+padding:20px;
+border-radius:12px;
+text-align:center
+}
+
+.bg-purple{
+background:linear-gradient(135deg,#6a11cb,#2575fc)
+}
+
+.bg-red{
+background:linear-gradient(135deg,#cb2d3e,#ef473a)
+}
+
+.charts-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+margin-bottom:30px
+}
+
+.chart-container{
+background:white;
+padding:15px;
+border-radius:12px;
+height:350px;
+overflow-y:auto
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white
+}
+
+thead{
+background:#6a11cb;
+color:white
+}
+
+th,td{
+padding:8px;
+border-bottom:1px solid #eee;
+font-size:13px
+}
+
+.estado-vigente{color:green;font-weight:bold}
+.estado-porvencer{color:orange;font-weight:bold}
+.estado-vencida{color:red;font-weight:bold}
+
 </style>
-""", unsafe_allow_html=True)
+</head>
 
-df = pd.read_csv("certificaciones.csv", encoding="latin-1")
+<body>
 
-csv_string = df.to_csv(index=False)
+<div class="container">
 
-with open("Dashboard.html","r",encoding="utf-8") as f:
-    html_code = f.read()
+<div class="header">
 
-html_code = html_code.replace(
-"</head>",
-f"<script>window.csvData=`{csv_string}`;</script></head>"
-)
+<h1>Mínimos Requeridos VENCIDOS</h1>
 
-components.html(html_code,height=1400,scrolling=True)
+<p class="subtitulo">
+
+<a href="https://pwbi.tenaris.net/reports/powerbi/Business%20Analytics%20Reports/Regions/Southern%20Cone/TU%20Argentina/INFO%20TU" target="_blank">
+¿Cómo lo regularizo?
+</a>
+
+<br>
+Actualizado hasta el 06-Mar
+<br><br>
+
+<a href="https://app.powerbi.com/groups/3f2e9d83-3263-4d60-9f8b-6c867912acc0/reports/f8180ab6-3019-45e8-9f6f-b40aa6ca4e91/52c739b0d08235bbec69" target="_blank">
+🔗 Link al BI de mínimos requeridos
+</a>
+
+</p>
+
+</div>
+
+<div class="filters">
+
+<input id="filtroNombre" placeholder="Nombre">
+<input id="filtroSAP" placeholder="SAP ID">
+
+<select id="filtroActivity"><option value="">Activity Type</option></select>
+<select id="filtroCertType"><option value="">Certification Type</option></select>
+<select id="filtroOU5"><option value="">OU 5</option></select>
+
+<button onclick="resetTotal()">Reset</button>
+<button onclick="exportarExcel()">Exportar Excel</button>
+
+</div>
+
+<div class="stats-grid">
+
+<div class="stat-card bg-purple">
+<h3>CUMPLIMIENTO 93%</h3>
+<div>Target 100%</div>
+</div>
+
+<div class="stat-card bg-red">
+<h3>Requisitos vencidos</h3>
+<div id="pendientes" style="font-size:28px;font-weight:bold">0</div>
+</div>
+
+</div>
+
+<div class="charts-grid">
+
+<div class="chart-container">
+<h3>Pendientes por OU 4</h3>
+<canvas id="ouChart"></canvas>
+</div>
+
+<div class="chart-container">
+<h3>On Hold</h3>
+<canvas id="holdChart"></canvas>
+</div>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+<th>SAP ID</th>
+<th>Nombre</th>
+<th>Certificación</th>
+<th>Activity Type</th>
+<th>Supervisor</th>
+<th>OU 4</th>
+<th>Estado</th>
+<th>Comentarios</th>
+</tr>
+
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+let datosGlobal=[]
+let ouChart
+let holdChart
+let filtroOU=null
+let filtroHold=null
+
+function exportarExcel(){
+
+const tabla=document.querySelector("table")
+const wb=XLSX.utils.table_to_book(tabla,{sheet:"Reporte"})
+XLSX.writeFile(wb,"Minimos_Requeridos.xlsx")
+
+}
+
+function crearGraficos(ouCount,holdCount){
+
+const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1])
+
+const ouLabels=sortedOU.map(e=>e[0])
+const ouValues=sortedOU.map(e=>e[1])
+
+const colores=ouValues.map((v,i)=> i<3 ? "#ef473a":"#f7971e")
+
+const altura=ouLabels.length*30
+document.getElementById("ouChart").height=altura
+
+if(ouChart) ouChart.destroy()
+
+ouChart=new Chart(document.getElementById("ouChart"),{
+
+type:"bar",
+
+data:{
+labels:ouLabels,
+datasets:[{
+data:ouValues,
+backgroundColor:colores
+}]
+},
+
+options:{
+indexAxis:'y',
+responsive:true,
+maintainAspectRatio:false,
+plugins:{legend:{display:false}},
+scales:{y:{ticks:{autoSkip:false}}},
+
+onClick:(evt,elements)=>{
+if(elements.length>0){
+const index=elements[0].index
+const seleccionado=ouLabels[index]
+filtroOU=(filtroOU===seleccionado)?null:seleccionado
+aplicarFiltros()
+}
+}
+
+}
+
+})
+
+const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1])
+
+const holdLabels=sortedHold.map(e=>e[0])
+const holdValues=sortedHold.map(e=>e[1])
+
+const altura2=holdLabels.length*30
+document.getElementById("holdChart").height=altura2
+
+if(holdChart) holdChart.destroy()
+
+holdChart=new Chart(document.getElementById("holdChart"),{
+
+type:"bar",
+
+data:{
+labels:holdLabels,
+datasets:[{data:holdValues,backgroundColor:"#6a11cb"}]
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{legend:{display:false}}
+}
+
+})
+
+}
+
+</script>
+
+</body>
+</html>
