@@ -102,11 +102,11 @@ margin-bottom:30px
 background:white;
 padding:15px;
 border-radius:12px;
-height:240px
+height:250px
 }
 
 .chart-container canvas{
-height:180px !important
+height:190px !important
 }
 
 table{
@@ -244,38 +244,26 @@ aplicarFiltros()
 
 function cargarFiltros(){
 
-const actSet=new Set()
-const supSet=new Set()
-const ou5Set=new Set()
+const act=new Set()
+const sup=new Set()
+const ou5=new Set()
 
 datosGlobal.forEach(d=>{
-
-if(d["Activity Type"]) actSet.add(d["Activity Type"])
-if(d["Supervisor"]) supSet.add(d["Supervisor"])
-if(d["OU 5"]) ou5Set.add(d["OU 5"])
-
+if(d["Activity Type"]) act.add(d["Activity Type"])
+if(d["Supervisor"]) sup.add(d["Supervisor"])
+if(d["OU 5"]) ou5.add(d["OU 5"])
 })
 
-actSet.forEach(v=>{
-fActivity.innerHTML+=`<option>${v}</option>`
-})
-
-supSet.forEach(v=>{
-fSupervisor.innerHTML+=`<option>${v}</option>`
-})
-
-ou5Set.forEach(v=>{
-fOU5.innerHTML+=`<option>${v}</option>`
-})
+act.forEach(v=>fActivity.innerHTML+=`<option>${v}</option>`)
+sup.forEach(v=>fSupervisor.innerHTML+=`<option>${v}</option>`)
+ou5.forEach(v=>fOU5.innerHTML+=`<option>${v}</option>`)
 
 }
 
 function parseFecha(f){
 
 if(!f) return null
-
 const p=f.split("/")
-
 return new Date(p[2],p[1]-1,p[0])
 
 }
@@ -283,15 +271,12 @@ return new Date(p[2],p[1]-1,p[0])
 function estado(f){
 
 const fecha=parseFecha(f)
-
 if(!fecha) return "Vencida"
 
 const hoy=new Date()
 hoy.setHours(0,0,0,0)
 
-if(fecha<hoy) return "Vencida"
-
-return "Vigente"
+return fecha<hoy?"Vencida":"Vigente"
 
 }
 
@@ -303,15 +288,15 @@ const act=fActivity.value
 const sup=fSupervisor.value
 const ou5=fOU5.value
 
-datosFiltrados = datosGlobal.filter(d=>{
+datosFiltrados = datosGlobal.filter(d=>
 
-return (!nombre || (d["Nombre"]||"").toLowerCase().includes(nombre))
-&&(!sap || (d["SAP ID"]||"").includes(sap))
-&&(!act || d["Activity Type"]===act)
-&&(!sup || d["Supervisor"]===sup)
-&&(!ou5 || d["OU 5"]===ou5)
+(!nombre || (d["Nombre"]||"").toLowerCase().includes(nombre)) &&
+(!sap || (d["SAP ID"]||"").includes(sap)) &&
+(!act || d["Activity Type"]===act) &&
+(!sup || d["Supervisor"]===sup) &&
+(!ou5 || d["OU 5"]===ou5)
 
-})
+)
 
 renderizar()
 
@@ -339,12 +324,12 @@ XLSX.writeFile(wb,"Minimos_Requeridos.xlsx")
 
 function renderizar(){
 
+const tbody=document.getElementById("tableBody")
+tbody.innerHTML=""
+
 let vencidas=0
 let ouCount={}
 let holdCount={}
-
-const tbody=document.getElementById("tableBody")
-tbody.innerHTML=""
 
 datosFiltrados.forEach(d=>{
 
@@ -355,15 +340,12 @@ if(est==="Vencida"){
 vencidas++
 
 const ou=d["OU 4"]||"Sin OU"
-
 ouCount[ou]=(ouCount[ou]||0)+1
 
 }
 
 if(d["Comentarios"]){
-
 holdCount[d["Comentarios"]] = (holdCount[d["Comentarios"]]||0)+1
-
 }
 
 tbody.innerHTML+=`
@@ -383,20 +365,42 @@ tbody.innerHTML+=`
 
 pendientes.textContent=vencidas
 
-crearGraficos(ouCount,holdCount)
+actualizarGraficos()
 
 }
 
-function crearGraficos(ouCount,holdCount){
+function actualizarGraficos(){
 
-const ouLabels=Object.keys(ouCount)
-const ouValues=Object.values(ouCount)
+let ouCount={}
+let holdCount={}
 
-const colors=ouValues.map((v,i)=> i<3 ? "#ef473a" : "#f7971e")
+datosFiltrados.forEach(d=>{
+
+if(estado(d["Fecha_vencimiento"])==="Vencida"){
+
+const ou=d["OU 4"]||"Sin OU"
+ouCount[ou]=(ouCount[ou]||0)+1
+
+}
+
+if(d["Comentarios"]){
+holdCount[d["Comentarios"]]=(holdCount[d["Comentarios"]]||0)+1
+}
+
+})
+
+const ouSorted = Object.entries(ouCount).sort((a,b)=>b[1]-a[1])
+const holdSorted = Object.entries(holdCount).sort((a,b)=>b[1]-a[1])
+
+const ouLabels=ouSorted.map(x=>x[0])
+const ouValues=ouSorted.map(x=>x[1])
+
+const holdLabels=holdSorted.map(x=>x[0])
+const holdValues=holdSorted.map(x=>x[1])
 
 if(ouChart) ouChart.destroy()
 
-ouChart=new Chart(ouChart=document.getElementById("ouChart"),{
+ouChart=new Chart(document.getElementById("ouChart"),{
 
 type:"bar",
 
@@ -404,19 +408,16 @@ data:{
 labels:ouLabels,
 datasets:[{
 data:ouValues,
-backgroundColor:colors
+backgroundColor:"#ef473a"
 }]
 },
 
 options:{
-indexAxis:'y',
+indexAxis:"y",
 plugins:{legend:{display:false}}
 }
 
 })
-
-const hLabels=Object.keys(holdCount)
-const hValues=Object.values(holdCount)
 
 if(holdChart) holdChart.destroy()
 
@@ -425,9 +426,9 @@ holdChart=new Chart(document.getElementById("holdChart"),{
 type:"bar",
 
 data:{
-labels:hLabels,
+labels:holdLabels,
 datasets:[{
-data:hValues,
+data:holdValues,
 backgroundColor:"#6a11cb"
 }]
 },
@@ -446,9 +447,7 @@ document.addEventListener("change",aplicarFiltros)
 window.onload=function(){
 
 if(window.csvData){
-
 procesarCSV(window.csvData)
-
 }
 
 }
