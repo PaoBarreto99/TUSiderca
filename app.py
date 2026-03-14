@@ -33,4 +33,4 @@ html_code = html_code.replace(
 f"<script>window.csvData = `{csv_string}`;</script></head>"
 )
 
-components.html(html_code, height=1300, scrolling=True)
+components.html(html_code, height=900, scrolling=True)
