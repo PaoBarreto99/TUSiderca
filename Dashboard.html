@@ -32,17 +32,6 @@ margin-bottom:25px;
 text-align:center
 }
 
-.subtitulo{
-margin-top:10px;
-font-size:14px;
-line-height:1.6
-}
-
-.subtitulo a{
-color:white;
-text-decoration:underline
-}
-
 .filters{
 background:white;
 padding:15px;
@@ -88,11 +77,6 @@ text-align:center
 .number{
 font-size:2em;
 font-weight:bold
-}
-
-.subtext{
-font-size:13px;
-margin-top:5px
 }
 
 .charts-grid{
@@ -142,21 +126,12 @@ font-size:13px
 <div class="container">
 
 <div class="header">
-
 <h1>Mínimos Requeridos VENCIDOS</h1>
-
-<p class="subtitulo">
-<a href="#">¿Cómo lo regularizo?</a>
-<br>
-Actualizado hasta el 06-Mar
-</p>
-
 </div>
 
 <div class="filters">
 
 <input id="fNombre" placeholder="Nombre">
-
 <input id="fSAP" placeholder="SAP ID">
 
 <select id="fActivity">
@@ -172,7 +147,6 @@ Actualizado hasta el 06-Mar
 </select>
 
 <button onclick="resetFiltros()">Reset</button>
-
 <button onclick="exportarExcel()">Exportar Excel</button>
 
 </div>
@@ -181,7 +155,6 @@ Actualizado hasta el 06-Mar
 
 <div class="stat-card bg-purple">
 <h3>CUMPLIMIENTO 93%</h3>
-<div class="subtext">Target: 100%</div>
 </div>
 
 <div class="stat-card bg-red">
@@ -230,6 +203,7 @@ Actualizado hasta el 06-Mar
 
 let datosGlobal=[]
 let datosFiltrados=[]
+
 let ouChart
 let holdChart
 
@@ -240,11 +214,17 @@ header:true,
 skipEmptyLines:true,
 complete:function(results){
 
-datosGlobal=results.data
+datosGlobal = results.data.map(r=>{
+let obj={}
+for(let k in r){
+obj[k.trim()] = r[k]
+}
+return obj
+})
 
 cargarFiltros()
 
-renderizar(datosGlobal)
+aplicarFiltros()
 
 }
 })
@@ -258,21 +238,23 @@ const supSet=new Set()
 const ou5Set=new Set()
 
 datosGlobal.forEach(d=>{
+
 if(d["Activity Type"]) actSet.add(d["Activity Type"])
-if(d.Supervisor) supSet.add(d.Supervisor)
+if(d["Supervisor"]) supSet.add(d["Supervisor"])
 if(d["OU 5"]) ou5Set.add(d["OU 5"])
+
 })
 
-actSet.forEach(a=>{
-document.getElementById("fActivity").innerHTML+=`<option>${a}</option>`
+actSet.forEach(v=>{
+document.getElementById("fActivity").innerHTML+=`<option>${v}</option>`
 })
 
-supSet.forEach(s=>{
-document.getElementById("fSupervisor").innerHTML+=`<option>${s}</option>`
+supSet.forEach(v=>{
+document.getElementById("fSupervisor").innerHTML+=`<option>${v}</option>`
 })
 
-ou5Set.forEach(o=>{
-document.getElementById("fOU5").innerHTML+=`<option>${o}</option>`
+ou5Set.forEach(v=>{
+document.getElementById("fOU5").innerHTML+=`<option>${v}</option>`
 })
 
 }
@@ -310,12 +292,12 @@ const act=document.getElementById("fActivity").value
 const sup=document.getElementById("fSupervisor").value
 const ou5=document.getElementById("fOU5").value
 
-datosFiltrados=datosGlobal.filter(d=>{
+datosFiltrados = datosGlobal.filter(d=>{
 
-return (!nombre || d.Nombre?.toLowerCase().includes(nombre))
-&&(!sap || d["SAP ID"]?.includes(sap))
+return (!nombre || (d["Nombre"]||"").toLowerCase().includes(nombre))
+&&(!sap || (d["SAP ID"]||"").includes(sap))
 &&(!act || d["Activity Type"]===act)
-&&(!sup || d.Supervisor===sup)
+&&(!sup || d["Supervisor"]===sup)
 &&(!ou5 || d["OU 5"]===ou5)
 
 })
@@ -329,15 +311,16 @@ function resetFiltros(){
 document.querySelectorAll("input").forEach(e=>e.value="")
 document.querySelectorAll("select").forEach(e=>e.value="")
 
-renderizar(datosGlobal)
+aplicarFiltros()
 
 }
 
 function exportarExcel(){
 
-const tabla=document.getElementById("tablaDatos")
+const ws = XLSX.utils.json_to_sheet(datosFiltrados)
+const wb = XLSX.utils.book_new()
 
-const wb=XLSX.utils.table_to_book(tabla,{sheet:"Reporte"})
+XLSX.utils.book_append_sheet(wb, ws, "Reporte")
 
 XLSX.writeFile(wb,"Minimos_Requeridos.xlsx")
 
@@ -345,46 +328,43 @@ XLSX.writeFile(wb,"Minimos_Requeridos.xlsx")
 
 function renderizar(datos){
 
-datosFiltrados=datos
-
 let vencidas=0
 let ouCount={}
 let holdCount={}
 
 const tbody=document.getElementById("tableBody")
-
 tbody.innerHTML=""
 
 datos.forEach(d=>{
 
-const est=estado(d["Fecha_vencimiento"])
+const est = estado(d["Fecha_vencimiento"])
 
 if(est==="Vencida"){
 
 vencidas++
 
-const ou=d["OU 4"]||"Sin OU"
+const ou=d["OU 4"] || "Sin OU"
 
 ouCount[ou]=(ouCount[ou]||0)+1
 
 }
 
-if(d.Comentarios){
+if(d["Comentarios"]){
 
-holdCount[d.Comentarios]=(holdCount[d.Comentarios]||0)+1
+holdCount[d["Comentarios"]] = (holdCount[d["Comentarios"]]||0)+1
 
 }
 
 tbody.innerHTML+=`
 <tr>
 <td>${d["SAP ID"]||""}</td>
-<td>${d.Nombre||""}</td>
-<td>${d.Certificacion||""}</td>
+<td>${d["Nombre"]||""}</td>
+<td>${d["Certificacion"]||""}</td>
 <td>${d["Activity Type"]||""}</td>
-<td>${d.Supervisor||""}</td>
+<td>${d["Supervisor"]||""}</td>
 <td>${d["OU 4"]||""}</td>
 <td class="${est==="Vencida"?"estado-vencida":"estado-vigente"}">${est}</td>
-<td>${d.Comentarios||""}</td>
+<td>${d["Comentarios"]||""}</td>
 </tr>
 `
 
@@ -400,10 +380,10 @@ function crearGraficos(ouCount,holdCount){
 
 const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1])
 
-const ouLabels=sortedOU.map(e=>e[0])
-const ouValues=sortedOU.map(e=>e[1])
+const labels=sortedOU.map(e=>e[0])
+const values=sortedOU.map(e=>e[1])
 
-const colors=ouValues.map((v,i)=> i<3 ? "#ef473a" : "#f7971e")
+const colors=values.map((v,i)=> i<3 ? "#ef473a" : "#f7971e")
 
 if(ouChart) ouChart.destroy()
 
@@ -412,9 +392,9 @@ ouChart=new Chart(document.getElementById("ouChart"),{
 type:"bar",
 
 data:{
-labels:ouLabels,
+labels:labels,
 datasets:[{
-data:ouValues,
+data:values,
 backgroundColor:colors,
 barThickness:12
 }]
@@ -430,8 +410,8 @@ scales:{y:{ticks:{autoSkip:false}}}
 
 const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1])
 
-const holdLabels=sortedHold.map(e=>e[0])
-const holdValues=sortedHold.map(e=>e[1])
+const hLabels=sortedHold.map(e=>e[0])
+const hValues=sortedHold.map(e=>e[1])
 
 if(holdChart) holdChart.destroy()
 
@@ -440,9 +420,9 @@ holdChart=new Chart(document.getElementById("holdChart"),{
 type:"bar",
 
 data:{
-labels:holdLabels,
+labels:hLabels,
 datasets:[{
-data:holdValues,
+data:hValues,
 backgroundColor:"#6a11cb"
 }]
 },
