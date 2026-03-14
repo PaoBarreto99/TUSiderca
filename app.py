@@ -6,17 +6,14 @@ st.set_page_config(layout="wide")
 
 st.markdown("""
 <style>
-
-.block-container {
-    padding-top:0rem !important;
-    padding-bottom:0rem !important;
-    padding-left:0rem !important;
-    padding-right:0rem !important;
+.block-container{
+padding-top:0rem !important;
+padding-bottom:0rem !important;
+padding-left:0rem !important;
+padding-right:0rem !important;
 }
-
-header {visibility:hidden;}
-footer {visibility:hidden;}
-
+header{visibility:hidden;}
+footer{visibility:hidden;}
 </style>
 """, unsafe_allow_html=True)
 
