@@ -154,11 +154,14 @@ Actualizado hasta el 06-Mar
 </select>
 
 <select id="filtroCertType">
-<option value="">Certification Type</option>
+<option value="">Certification</option>
+</select>
+
+<select id="filtroOU5">
+<option value="">OU 5</option>
 </select>
 
 <button onclick="resetTotal()">Reset</button>
-
 <button onclick="exportarExcel()">Exportar Excel</button>
 
 </div>
@@ -197,14 +200,16 @@ Actualizado hasta el 06-Mar
 
 <thead>
 <tr>
-<th>Nombre</th>
+
 <th>SAP ID</th>
-<th>Certification Type</th>
-<th>Certificacion</th>
+<th>Nombre</th>
+<th>Certificación</th>
 <th>Activity Type</th>
+<th>Supervisor</th>
 <th>OU 4</th>
 <th>Estado</th>
 <th>Comentarios</th>
+
 </tr>
 </thead>
 
@@ -218,17 +223,26 @@ Actualizado hasta el 06-Mar
 <script>
 
 let datosGlobal=[]
+let datosFiltrados=[]
+
 let ouChart
 let holdChart
+
 let filtroOU=null
 let filtroHold=null
 
 
 function exportarExcel(){
-const tabla=document.querySelector("table")
-const wb=XLSX.utils.table_to_book(tabla,{sheet:"Reporte"})
+
+const ws=XLSX.utils.json_to_sheet(datosFiltrados)
+const wb=XLSX.utils.book_new()
+
+XLSX.utils.book_append_sheet(wb,ws,"Reporte")
+
 XLSX.writeFile(wb,"Minimos_Requeridos.xlsx")
+
 }
+
 
 
 function calcularEstado(fecha){
@@ -248,6 +262,7 @@ return "Vigente"
 }
 
 
+
 function aplicarFiltros(){
 
 let datos=datosGlobal
@@ -256,22 +271,28 @@ const nombre=document.getElementById("filtroNombre").value.toLowerCase()
 const sap=document.getElementById("filtroSAP").value.toLowerCase()
 const act=document.getElementById("filtroActivity").value
 const cert=document.getElementById("filtroCertType").value
+const ou5=document.getElementById("filtroOU5").value
+
 
 datos=datos.filter(d=>
 
 (!nombre||d.Nombre?.toLowerCase().includes(nombre))
 &&(!sap||d["SAP ID"]?.toLowerCase().includes(sap))
 &&(!act||d["Activity Type"]===act)
-&&(!cert||d["Certification Type"]===cert)
+&&(!cert||d.Certificacion===cert)
+&&(!ou5||d["OU 5"]===ou5)
 
 )
 
 if(filtroOU) datos=datos.filter(d=>d["OU 4"]===filtroOU)
 if(filtroHold) datos=datos.filter(d=>d.Comentarios===filtroHold)
 
+datosFiltrados=datos
+
 renderizar(datos)
 
 }
+
 
 
 function resetTotal(){
@@ -280,9 +301,12 @@ document.querySelectorAll("input,select").forEach(e=>e.value="")
 filtroOU=null
 filtroHold=null
 
+datosFiltrados=datosGlobal
+
 renderizar(datosGlobal)
 
 }
+
 
 
 function renderizar(datos){
@@ -315,17 +339,22 @@ if(estado==="Vigente")clase="estado-vigente"
 if(estado==="Por Vencer")clase="estado-porvencer"
 if(estado==="Vencida")clase="estado-vencida"
 
+
 tbody.innerHTML+=`
+
 <tr>
-<td>${d.Nombre||""}</td>
+
 <td>${d["SAP ID"]||""}</td>
-<td>${d["Certification Type"]||""}</td>
+<td>${d.Nombre||""}</td>
 <td>${d.Certificacion||""}</td>
 <td>${d["Activity Type"]||""}</td>
+<td>${d.Supervisor||""}</td>
 <td>${d["OU 4"]||""}</td>
 <td class="${clase}">${estado}</td>
 <td>${d.Comentarios||""}</td>
+
 </tr>
+
 `
 
 })
@@ -335,6 +364,7 @@ document.getElementById("pendientes").textContent=ven
 crearGraficos(ouCount,holdCount)
 
 }
+
 
 
 function crearGraficos(ouCount,holdCount){
@@ -352,10 +382,7 @@ ouChart=new Chart(document.getElementById("ouChart"),{
 
 type:"bar",
 
-data:{
-labels:labels,
-datasets:[{data:values,backgroundColor:colores}]
-},
+data:{labels:labels,datasets:[{data:values,backgroundColor:colores}]},
 
 options:{
 indexAxis:'y',
@@ -394,10 +421,7 @@ holdChart=new Chart(document.getElementById("holdChart"),{
 
 type:"bar",
 
-data:{
-labels:holdLabels,
-datasets:[{data:holdValues}]
-},
+data:{labels:holdLabels,datasets:[{data:holdValues}]},
 
 options:{
 responsive:true,
@@ -426,8 +450,10 @@ aplicarFiltros()
 }
 
 
+
 document.addEventListener("input",aplicarFiltros)
 document.addEventListener("change",aplicarFiltros)
+
 
 
 window.onload=function(){
@@ -441,13 +467,16 @@ skipEmptyLines:true,
 complete:function(results){
 
 datosGlobal=results.data
+datosFiltrados=datosGlobal
 
 const actSet=new Set()
 const certSet=new Set()
+const ou5Set=new Set()
 
 datosGlobal.forEach(d=>{
 if(d["Activity Type"]) actSet.add(d["Activity Type"])
-if(d["Certification Type"]) certSet.add(d["Certification Type"])
+if(d.Certificacion) certSet.add(d.Certificacion)
+if(d["OU 5"]) ou5Set.add(d["OU 5"])
 })
 
 actSet.forEach(a=>{
@@ -456,6 +485,10 @@ document.getElementById("filtroActivity").innerHTML+=`<option>${a}</option>`
 
 certSet.forEach(c=>{
 document.getElementById("filtroCertType").innerHTML+=`<option>${c}</option>`
+})
+
+ou5Set.forEach(o=>{
+document.getElementById("filtroOU5").innerHTML+=`<option>${o}</option>`
 })
 
 renderizar(datosGlobal)
