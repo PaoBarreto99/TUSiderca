@@ -50,27 +50,35 @@ text-decoration:underline
 
 .filters{
 background:white;
-padding:15px;
+padding:12px;
 border-radius:12px;
 margin-bottom:25px;
 display:flex;
-gap:10px;
-flex-wrap:wrap
+gap:8px;
+flex-wrap:nowrap;
+align-items:center
 }
 
-.filters input,.filters select{
-padding:6px;
+.filters input,
+.filters select{
+padding:5px;
 border-radius:6px;
-border:1px solid #ccc
+border:1px solid #ccc;
+font-size:13px
+}
+
+#filtroCertType{
+width:140px;
 }
 
 .filters button{
-padding:6px 12px;
+padding:5px 10px;
 border:none;
 border-radius:6px;
 background:#6a11cb;
 color:white;
-cursor:pointer
+cursor:pointer;
+font-size:13px
 }
 
 .stats-grid{
@@ -98,6 +106,12 @@ background:linear-gradient(135deg,#6a11cb,#2575fc)
 
 .bg-red{
 background:linear-gradient(135deg,#cb2d3e,#ef473a)
+}
+
+.card-subtitle{
+font-size:12px;
+opacity:0.9;
+margin-top:3px
 }
 
 .charts-grid{
@@ -195,6 +209,7 @@ Actualizado hasta el 06-Mar
 
 <div class="stat-card bg-purple">
 <h3>CUMPLIMIENTO 93%</h3>
+<div class="card-subtitle">Nivel actual de cumplimiento de certificaciones</div>
 </div>
 
 <div class="stat-card bg-red">
@@ -385,7 +400,6 @@ crearGraficos(ouCount,holdCount)
 }
 
 
-
 function crearGraficos(ouCount,holdCount){
 
 const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1])
@@ -475,7 +489,6 @@ aplicarFiltros()
 })
 
 }
-
 
 
 document.addEventListener("input",aplicarFiltros)
