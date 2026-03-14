@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 
 <meta charset="UTF-8">
@@ -12,16 +11,8 @@
 
 <style>
 
-body{
-font-family:Segoe UI;
-background:#f4f6fa;
-padding:20px
-}
-
-.container{
-max-width:1500px;
-margin:auto
-}
+body{font-family:Segoe UI;background:#f4f6fa;padding:20px}
+.container{max-width:1500px;margin:auto}
 
 .header{
 background:linear-gradient(135deg,#6a11cb,#2575fc);
@@ -40,9 +31,8 @@ line-height:1.6;
 }
 
 .subtitulo a{
-color:#ffffff;
+color:white;
 text-decoration:underline;
-font-weight:500;
 }
 
 .filters{
@@ -89,19 +79,8 @@ font-size:2em;
 font-weight:bold
 }
 
-.subtext{
-font-size:13px;
-margin-top:6px;
-opacity:0.9
-}
-
-.bg-purple{
-background:linear-gradient(135deg,#6a11cb,#2575fc);
-}
-
-.bg-red{
-background:linear-gradient(135deg,#cb2d3e,#ef473a);
-}
+.bg-purple{background:linear-gradient(135deg,#6a11cb,#2575fc)}
+.bg-red{background:linear-gradient(135deg,#cb2d3e,#ef473a)}
 
 .charts-grid{
 display:grid;
@@ -114,7 +93,7 @@ margin-bottom:30px
 background:white;
 padding:15px;
 border-radius:12px;
-height:225px
+height:230px;
 }
 
 table{
@@ -139,7 +118,6 @@ font-size:13px
 .estado-vencida{color:red;font-weight:bold}
 
 </style>
-
 </head>
 
 <body>
@@ -158,15 +136,31 @@ font-size:13px
 
 <br>
 Actualizado hasta el 06-Mar
+
 <br><br>
 
-<a href="https://app.powerbi.com/groups/3f2e9d83-3263-4d60-9f8b-6c867912acc0/reports/f8180ab6-3019-45e8-9f6f-b40aa6ca4e91/52c739b0d08235bbec69?ctid=a054342c-6f8c-4378-ad61-a8ad00f2b736&experience=power-bi&chromeless=true" target="_blank">
+<a href="https://app.powerbi.com/groups/3f2e9d83-3263-4d60-9f8b-6c867912acc0/reports/f8180ab6-3019-45e8-9f6f-b40aa6ca4e91/52c739b0d08235bbec69" target="_blank">
 🔗 Link al BI de mínimos requeridos
 </a>
 
 </p>
 
 </div>
+
+
+<div class="stats-grid">
+
+<div class="stat-card bg-purple">
+<h3>CUMPLIMIENTO 93%</h3>
+</div>
+
+<div class="stat-card bg-red">
+<h3>Requisitos vencidos</h3>
+<div class="number" id="pendientes">0</div>
+</div>
+
+</div>
+
 
 <div class="charts-grid">
 
@@ -181,6 +175,7 @@ Actualizado hasta el 06-Mar
 </div>
 
 </div>
+
 
 <table>
 
@@ -203,29 +198,33 @@ Actualizado hasta el 06-Mar
 
 </div>
 
+
 <script>
 
 let datosGlobal=[]
 let ouChart
 let holdChart
+let filtroOU=null
+let filtroHold=null
+
 
 function calcularEstado(fecha){
 
 if(!fecha) return "Vencida"
 
 const hoy=new Date()
-
 const f=new Date(fecha)
 
 const diff=(f-hoy)/(1000*60*60*24)
 
 if(diff<0) return "Vencida"
-
 if(diff<=90) return "Por Vencer"
 
 return "Vigente"
 
 }
+
+
 
 function renderizar(datos){
 
@@ -234,7 +233,6 @@ let ouCount={}
 let holdCount={}
 
 const tbody=document.getElementById("tableBody")
-
 tbody.innerHTML=""
 
 datos.forEach(d=>{
@@ -244,17 +242,12 @@ const estado=calcularEstado(d["Fecha_Vencimiento"])
 if(estado==="Vencida") ven++
 
 if(estado!=="Vigente"){
-
 const ou=d["OU 4"]||"Sin OU"
-
 ouCount[ou]=(ouCount[ou]||0)+1
-
 }
 
 if(d.Comentarios){
-
 holdCount[d.Comentarios]=(holdCount[d.Comentarios]||0)+1
-
 }
 
 let clase=""
@@ -263,35 +256,29 @@ if(estado==="Vigente")clase="estado-vigente"
 if(estado==="Por Vencer")clase="estado-porvencer"
 if(estado==="Vencida")clase="estado-vencida"
 
+
 tbody.innerHTML+=`
-
 <tr>
-
 <td>${d.Nombre||""}</td>
-
 <td>${d["SAP ID"]||""}</td>
-
 <td>${d["Certification Type"]||""}</td>
-
 <td>${d.Certificacion||""}</td>
-
 <td>${d["Activity Type"]||""}</td>
-
 <td>${d["OU 4"]||""}</td>
-
 <td class="${clase}">${estado}</td>
-
 <td>${d.Comentarios||""}</td>
-
 </tr>
-
 `
 
 })
 
+document.getElementById("pendientes").textContent=ven
+
 crearGraficos(ouCount,holdCount)
 
 }
+
+
 
 function crearGraficos(ouCount,holdCount){
 
@@ -320,21 +307,99 @@ options:{
 indexAxis:'y',
 responsive:true,
 maintainAspectRatio:false,
-plugins:{legend:{display:false}}
+plugins:{legend:{display:false}},
+
+onClick:(evt,elements)=>{
+
+if(elements.length>0){
+
+const index=elements[0].index
+const seleccionado=labels[index]
+
+filtroOU=(filtroOU===seleccionado)?null:seleccionado
+
+aplicarFiltros()
+
+}
+
+}
+
+}
+
+})
+
+
+
+const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1])
+
+const holdLabels=sortedHold.map(e=>e[0])
+const holdValues=sortedHold.map(e=>e[1])
+
+if(holdChart) holdChart.destroy()
+
+holdChart=new Chart(document.getElementById("holdChart"),{
+
+type:"bar",
+
+data:{
+labels:holdLabels,
+datasets:[{
+data:holdValues
+}]
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{legend:{display:false}},
+
+onClick:(evt,elements)=>{
+
+if(elements.length>0){
+
+const index=elements[0].index
+const seleccionado=holdLabels[index]
+
+filtroHold=(filtroHold===seleccionado)?null:seleccionado
+
+aplicarFiltros()
+
+}
+
+}
+
 }
 
 })
 
 }
 
+
+
+function aplicarFiltros(){
+
+let datos=datosGlobal
+
+if(filtroOU){
+datos=datos.filter(d=>d["OU 4"]===filtroOU)
+}
+
+if(filtroHold){
+datos=datos.filter(d=>d.Comentarios===filtroHold)
+}
+
+renderizar(datos)
+
+}
+
+
+
 window.onload=function(){
 
 if(window.csvData){
 
 Papa.parse(window.csvData,{
-
 header:true,
-
 skipEmptyLines:true,
 
 complete:function(results){
