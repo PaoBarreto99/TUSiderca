@@ -20,7 +20,6 @@ footer {visibility:hidden;}
 </style>
 """, unsafe_allow_html=True)
 
-
 df = pd.read_csv("certificaciones.csv", encoding="latin-1")
 
 csv_string = df.to_csv(index=False)
