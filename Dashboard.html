@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -33,38 +35,12 @@ text-align:center
 .subtitulo{
 margin-top:10px;
 font-size:14px;
-opacity:0.95;
 line-height:1.6
 }
 
 .subtitulo a{
 color:white;
 text-decoration:underline
-}
-
-.filters{
-background:white;
-padding:15px;
-border-radius:12px;
-margin-bottom:25px;
-display:flex;
-gap:15px;
-flex-wrap:wrap
-}
-
-.filters input,.filters select{
-padding:8px;
-border-radius:8px;
-border:1px solid #ccc
-}
-
-.filters button{
-padding:8px 15px;
-border:none;
-border-radius:8px;
-background:#6a11cb;
-color:white;
-cursor:pointer
 }
 
 .stats-grid{
@@ -81,7 +57,8 @@ border-radius:12px;
 text-align:center
 }
 
-.stat-card h3{margin:0}
+.bg-purple{background:linear-gradient(135deg,#6a11cb,#2575fc)}
+.bg-red{background:linear-gradient(135deg,#cb2d3e,#ef473a)}
 
 .number{
 font-size:2em;
@@ -90,12 +67,8 @@ font-weight:bold
 
 .subtext{
 font-size:13px;
-margin-top:6px;
-opacity:0.9
+margin-top:5px
 }
-
-.bg-purple{background:linear-gradient(135deg,#6a11cb,#2575fc)}
-.bg-red{background:linear-gradient(135deg,#cb2d3e,#ef473a)}
 
 .charts-grid{
 display:grid;
@@ -133,10 +106,10 @@ font-size:13px
 }
 
 .estado-vigente{color:green;font-weight:bold}
-.estado-porvencer{color:orange;font-weight:bold}
 .estado-vencida{color:red;font-weight:bold}
 
 </style>
+
 </head>
 
 <body>
@@ -149,19 +122,13 @@ font-size:13px
 
 <p class="subtitulo">
 
-<a href="https://pwbi.tenaris.net/reports/powerbi/Business%20Analytics%20Reports/Regions/Southern%20Cone/TU%20Argentina/INFO%20TU" target="_blank">
+<a href="https://pwbi.tenaris.net" target="_blank">
 ¿Cómo lo regularizo?
 </a>
 
 <br>
 
 Actualizado hasta el 06-Mar
-
-<br><br>
-
-<a href="https://app.powerbi.com/groups/3f2e9d83-3263-4d60-9f8b-6c867912acc0/reports/f8180ab6-3019-45e8-9f6f-b40aa6ca4e91/52c739b0d08235bbec69?ctid=a054342c-6f8c-4378-ad61-a8ad00f2b736&experience=power-bi&chromeless=true" target="_blank">
-🔗 Link al BI de mínimos requeridos
-</a>
 
 </p>
 
@@ -219,18 +186,19 @@ Actualizado hasta el 06-Mar
 <script>
 
 let datosGlobal=[]
-let ouChart,holdChart
+let ouChart
+let holdChart
 
 function procesarCSV(csv){
-
-csv=csv.replace(/^\uFEFF/,"")
 
 Papa.parse(csv,{
 header:true,
 skipEmptyLines:true,
 complete:function(results){
+
 datosGlobal=results.data
 renderizar(datosGlobal)
+
 }
 })
 
@@ -239,23 +207,26 @@ renderizar(datosGlobal)
 function parseFecha(f){
 
 if(!f) return null
+
 const p=f.split("/")
-return new Date(p[2],p[0]-1,p[1])
+
+// FORMATO ARGENTINO DD/MM/YYYY
+
+return new Date(p[2],p[1]-1,p[0])
 
 }
 
 function estado(f){
 
 const fecha=parseFecha(f)
+
 if(!fecha) return "Vencida"
 
 const hoy=new Date()
+
 hoy.setHours(0,0,0,0)
 
-const diff=(fecha-hoy)/(1000*60*60*24)
-
-if(diff<0) return "Vencida"
-if(diff<=90) return "Por Vencer"
+if(fecha<hoy) return "Vencida"
 
 return "Vigente"
 
@@ -263,9 +234,11 @@ return "Vigente"
 
 function renderizar(datos){
 
-let ven=0
+let vencidas=0
+
 let ouCount={}
 let holdCount={}
+
 const tbody=document.getElementById("tableBody")
 
 tbody.innerHTML=""
@@ -274,21 +247,21 @@ datos.forEach(d=>{
 
 const est=estado(d["Fecha_vencimiento"])
 
-if(est==="Vencida") ven++
+if(est==="Vencida"){
 
-if(est!=="Vigente"){
+vencidas++
+
 const ou=d["OU 4"]||"Sin OU"
+
 ouCount[ou]=(ouCount[ou]||0)+1
+
 }
 
 if(d.Comentarios){
-holdCount[d.Comentarios]=(holdCount[d.Comentarios]||0)+1
-}
 
-let clase=""
-if(est==="Vigente")clase="estado-vigente"
-if(est==="Por Vencer")clase="estado-porvencer"
-if(est==="Vencida")clase="estado-vencida"
+holdCount[d.Comentarios]=(holdCount[d.Comentarios]||0)+1
+
+}
 
 tbody.innerHTML+=`
 <tr>
@@ -298,14 +271,14 @@ tbody.innerHTML+=`
 <td>${d["Activity Type"]||""}</td>
 <td>${d.Supervisor||""}</td>
 <td>${d["OU 4"]||""}</td>
-<td class="${clase}">${est}</td>
+<td class="${est==="Vencida"?"estado-vencida":"estado-vigente"}">${est}</td>
 <td>${d.Comentarios||""}</td>
 </tr>
 `
 
 })
 
-document.getElementById("pendientes").textContent=ven
+document.getElementById("pendientes").textContent=vencidas
 
 crearGraficos(ouCount,holdCount)
 
@@ -315,10 +288,10 @@ function crearGraficos(ouCount,holdCount){
 
 const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1])
 
-const labels=sortedOU.map(e=>e[0])
-const values=sortedOU.map(e=>e[1])
+const ouLabels=sortedOU.map(e=>e[0])
+const ouValues=sortedOU.map(e=>e[1])
 
-const colors=values.map((v,i)=> i<3 ? "#ef473a" : "#f7971e")
+const colors=ouValues.map((v,i)=> i<3 ? "#ef473a" : "#f7971e")
 
 if(ouChart) ouChart.destroy()
 
@@ -327,9 +300,9 @@ ouChart=new Chart(document.getElementById("ouChart"),{
 type:"bar",
 
 data:{
-labels:labels,
+labels:ouLabels,
 datasets:[{
-data:values,
+data:ouValues,
 backgroundColor:colors,
 barThickness:12
 }]
@@ -343,15 +316,48 @@ scales:{y:{ticks:{autoSkip:false}}}
 
 })
 
+
+const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1])
+
+const holdLabels=sortedHold.map(e=>e[0])
+const holdValues=sortedHold.map(e=>e[1])
+
+if(holdChart) holdChart.destroy()
+
+holdChart=new Chart(document.getElementById("holdChart"),{
+
+type:"bar",
+
+data:{
+labels:holdLabels,
+datasets:[{
+data:holdValues,
+backgroundColor:"#6a11cb",
+barThickness:20
+}]
+},
+
+options:{
+plugins:{legend:{display:false}},
+scales:{x:{ticks:{autoSkip:false}}}
+}
+
+})
+
 }
 
 window.onload=function(){
+
 if(window.csvData){
+
 procesarCSV(window.csvData)
+
 }
+
 }
 
 </script>
 
 </body>
+
 </html>
