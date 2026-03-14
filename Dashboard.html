@@ -43,6 +43,31 @@ color:white;
 text-decoration:underline
 }
 
+.filters{
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:25px;
+display:flex;
+gap:10px;
+flex-wrap:wrap
+}
+
+.filters input,.filters select{
+padding:8px;
+border-radius:8px;
+border:1px solid #ccc
+}
+
+.filters button{
+padding:8px 15px;
+border:none;
+border-radius:8px;
+background:#6a11cb;
+color:white;
+cursor:pointer
+}
+
 .stats-grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
@@ -122,15 +147,31 @@ font-size:13px
 
 <p class="subtitulo">
 
-<a href="https://pwbi.tenaris.net" target="_blank">
-¿Cómo lo regularizo?
-</a>
+<a href="#" target="_blank">¿Cómo lo regularizo?</a>
 
 <br>
 
 Actualizado hasta el 06-Mar
 
 </p>
+
+</div>
+
+<div class="filters">
+
+<input id="fNombre" placeholder="Nombre">
+
+<input id="fSAP" placeholder="SAP ID">
+
+<select id="fActivity">
+<option value="">Activity Type</option>
+</select>
+
+<select id="fSupervisor">
+<option value="">Supervisor</option>
+</select>
+
+<button onclick="resetFiltros()">Reset</button>
 
 </div>
 
@@ -197,9 +238,32 @@ skipEmptyLines:true,
 complete:function(results){
 
 datosGlobal=results.data
+
+cargarFiltros()
+
 renderizar(datosGlobal)
 
 }
+})
+
+}
+
+function cargarFiltros(){
+
+const actSet=new Set()
+const supSet=new Set()
+
+datosGlobal.forEach(d=>{
+if(d["Activity Type"]) actSet.add(d["Activity Type"])
+if(d.Supervisor) supSet.add(d.Supervisor)
+})
+
+actSet.forEach(a=>{
+document.getElementById("fActivity").innerHTML+=`<option>${a}</option>`
+})
+
+supSet.forEach(s=>{
+document.getElementById("fSupervisor").innerHTML+=`<option>${s}</option>`
 })
 
 }
@@ -209,8 +273,6 @@ function parseFecha(f){
 if(!f) return null
 
 const p=f.split("/")
-
-// FORMATO ARGENTINO DD/MM/YYYY
 
 return new Date(p[2],p[1]-1,p[0])
 
@@ -223,7 +285,6 @@ const fecha=parseFecha(f)
 if(!fecha) return "Vencida"
 
 const hoy=new Date()
-
 hoy.setHours(0,0,0,0)
 
 if(fecha<hoy) return "Vencida"
@@ -232,10 +293,38 @@ return "Vigente"
 
 }
 
+function aplicarFiltros(){
+
+const nombre=document.getElementById("fNombre").value.toLowerCase()
+const sap=document.getElementById("fSAP").value
+const act=document.getElementById("fActivity").value
+const sup=document.getElementById("fSupervisor").value
+
+let datos=datosGlobal.filter(d=>{
+
+return (!nombre || d.Nombre?.toLowerCase().includes(nombre))
+&&(!sap || d["SAP ID"]?.includes(sap))
+&&(!act || d["Activity Type"]===act)
+&&(!sup || d.Supervisor===sup)
+
+})
+
+renderizar(datos)
+
+}
+
+function resetFiltros(){
+
+document.querySelectorAll("input").forEach(e=>e.value="")
+document.querySelectorAll("select").forEach(e=>e.value="")
+
+renderizar(datosGlobal)
+
+}
+
 function renderizar(datos){
 
 let vencidas=0
-
 let ouCount={}
 let holdCount={}
 
@@ -316,7 +405,6 @@ scales:{y:{ticks:{autoSkip:false}}}
 
 })
 
-
 const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1])
 
 const holdLabels=sortedHold.map(e=>e[0])
@@ -332,19 +420,20 @@ data:{
 labels:holdLabels,
 datasets:[{
 data:holdValues,
-backgroundColor:"#6a11cb",
-barThickness:20
+backgroundColor:"#6a11cb"
 }]
 },
 
 options:{
-plugins:{legend:{display:false}},
-scales:{x:{ticks:{autoSkip:false}}}
+plugins:{legend:{display:false}}
 }
 
 })
 
 }
+
+document.addEventListener("input",aplicarFiltros)
+document.addEventListener("change",aplicarFiltros)
 
 window.onload=function(){
 
@@ -359,5 +448,4 @@ procesarCSV(window.csvData)
 </script>
 
 </body>
-
 </html>
