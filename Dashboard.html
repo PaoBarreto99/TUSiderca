@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 
 <meta charset="UTF-8">
@@ -32,9 +33,9 @@ text-align:center
 }
 
 .subtitulo{
+margin-top:10px;
 font-size:14px;
-line-height:1.6;
-margin-top:10px
+line-height:1.6
 }
 
 .subtitulo a{
@@ -48,20 +49,20 @@ padding:15px;
 border-radius:12px;
 margin-bottom:25px;
 display:flex;
-gap:15px;
+gap:10px;
 flex-wrap:wrap
 }
 
 .filters input,.filters select{
 padding:8px;
-border-radius:8px;
+border-radius:6px;
 border:1px solid #ccc
 }
 
 .filters button{
-padding:8px 15px;
+padding:8px 14px;
 border:none;
-border-radius:8px;
+border-radius:6px;
 background:#6a11cb;
 color:white;
 cursor:pointer
@@ -81,12 +82,12 @@ border-radius:12px;
 text-align:center
 }
 
-.bg-purple{
-background:linear-gradient(135deg,#6a11cb,#2575fc)
-}
+.bg-purple{background:linear-gradient(135deg,#6a11cb,#2575fc)}
+.bg-red{background:linear-gradient(135deg,#cb2d3e,#ef473a)}
 
-.bg-red{
-background:linear-gradient(135deg,#cb2d3e,#ef473a)
+.number{
+font-size:32px;
+font-weight:bold
 }
 
 .charts-grid{
@@ -121,9 +122,12 @@ border-bottom:1px solid #eee;
 font-size:13px
 }
 
+.estado-vigente{color:green;font-weight:bold}
+.estado-porvencer{color:orange;font-weight:bold}
 .estado-vencida{color:red;font-weight:bold}
 
 </style>
+
 </head>
 
 <body>
@@ -136,7 +140,7 @@ font-size:13px
 
 <p class="subtitulo">
 
-<a href="https://pwbi.tenaris.net/reports/powerbi/Business%20Analytics%20Reports/Regions/Southern%20Cone/TU%20Argentina/INFO%20TU" target="_blank">
+<a href="https://pwbi.tenaris.net/" target="_blank">
 ¿Cómo lo regularizo?
 </a>
 
@@ -144,7 +148,7 @@ font-size:13px
 Actualizado hasta el 06-Mar
 <br><br>
 
-<a href="https://app.powerbi.com/groups/3f2e9d83-3263-4d60-9f8b-6c867912acc0/reports/f8180ab6-3019-45e8-9f6f-b40aa6ca4e91/52c739b0d08235bbec69" target="_blank">
+<a href="https://app.powerbi.com/" target="_blank">
 🔗 Link al BI de mínimos requeridos
 </a>
 
@@ -152,31 +156,46 @@ Actualizado hasta el 06-Mar
 
 </div>
 
+
 <div class="filters">
 
-<input id="filtroNombre" placeholder="Nombre">
-<input id="filtroSAP" placeholder="SAP ID">
+<input type="text" id="filtroNombre" placeholder="Nombre">
 
-<select id="filtroOU5"><option value="">OU 5</option></select>
+<input type="text" id="filtroSAP" placeholder="SAP ID">
+
+<select id="filtroActivity">
+<option value="">Activity Type</option>
+</select>
+
+<select id="filtroCertType">
+<option value="">Certification Type</option>
+</select>
+
+<select id="filtroOU5">
+<option value="">OU 5</option>
+</select>
 
 <button onclick="resetTotal()">Reset</button>
+
 <button onclick="exportarExcel()">Exportar Excel</button>
 
 </div>
+
 
 <div class="stats-grid">
 
 <div class="stat-card bg-purple">
 <h3>CUMPLIMIENTO 93%</h3>
-<div>Target 100%</div>
+<div>Target: 100%</div>
 </div>
 
 <div class="stat-card bg-red">
 <h3>Requisitos vencidos</h3>
-<div id="pendientes" style="font-size:28px;font-weight:bold">0</div>
+<div class="number" id="pendientes">0</div>
 </div>
 
 </div>
+
 
 <div class="charts-grid">
 
@@ -192,19 +211,24 @@ Actualizado hasta el 06-Mar
 
 </div>
 
+
 <table>
 
 <thead>
+
 <tr>
+
 <th>SAP ID</th>
 <th>Nombre</th>
-<th>Certificación</th>
+<th>Certificacion</th>
 <th>Activity Type</th>
 <th>Supervisor</th>
 <th>OU 4</th>
 <th>Estado</th>
 <th>Comentarios</th>
+
 </tr>
+
 </thead>
 
 <tbody id="tableBody"></tbody>
@@ -213,75 +237,38 @@ Actualizado hasta el 06-Mar
 
 </div>
 
+
 <script>
 
 let datosGlobal=[]
 let ouChart
 let holdChart
 
+let filtroOU=null
+let filtroHold=null
+
 function exportarExcel(){
 
 const tabla=document.querySelector("table")
+
 const wb=XLSX.utils.table_to_book(tabla,{sheet:"Reporte"})
+
 XLSX.writeFile(wb,"Minimos_Requeridos.xlsx")
 
 }
 
-function cargarDatos(){
 
-const parsed=Papa.parse(window.csvData,{header:true})
-datosGlobal=parsed.data
+function crearGraficos(ouCount,holdCount){
 
-renderTabla(datosGlobal)
-crearGraficos(datosGlobal)
+const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1])
 
-}
+const ouLabels=sortedOU.map(e=>e[0])
+const ouValues=sortedOU.map(e=>e[1])
 
-function renderTabla(data){
+const colores=ouValues.map((v,i)=> i<3 ? "#ef473a" : "#f7971e")
 
-const tbody=document.getElementById("tableBody")
-tbody.innerHTML=""
+const altura=ouLabels.length*35
 
-data.forEach(d=>{
-
-const row=document.createElement("tr")
-
-row.innerHTML=`
-<td>${d["SAP ID"]||""}</td>
-<td>${d["Nombre"]||""}</td>
-<td>${d["Certificacion"]||""}</td>
-<td>${d["Activity Type"]||""}</td>
-<td>${d["Supervisor"]||""}</td>
-<td>${d["OU 4"]||""}</td>
-<td class="estado-vencida">VENCIDA</td>
-<td>${d["Comentarios"]||""}</td>
-`
-
-tbody.appendChild(row)
-
-})
-
-document.getElementById("pendientes").innerText=data.length
-
-}
-
-function crearGraficos(data){
-
-const ouCount={}
-
-data.forEach(d=>{
-const ou=d["OU 4"]||"Sin OU"
-ouCount[ou]=(ouCount[ou]||0)+1
-})
-
-const sorted=Object.entries(ouCount).sort((a,b)=>b[1]-a[1])
-
-const labels=sorted.map(e=>e[0])
-const values=sorted.map(e=>e[1])
-
-const colors=values.map((v,i)=> i<3 ? "#ef473a":"#f7971e")
-
-const altura=labels.length*30
 document.getElementById("ouChart").height=altura
 
 if(ouChart) ouChart.destroy()
@@ -291,8 +278,11 @@ ouChart=new Chart(document.getElementById("ouChart"),{
 type:"bar",
 
 data:{
-labels:labels,
-datasets:[{data:values,backgroundColor:colors}]
+labels:ouLabels,
+datasets:[{
+data:ouValues,
+backgroundColor:colores
+}]
 },
 
 options:{
@@ -300,14 +290,75 @@ indexAxis:'y',
 responsive:true,
 maintainAspectRatio:false,
 plugins:{legend:{display:false}},
-scales:{y:{ticks:{autoSkip:false}}}
+scales:{y:{ticks:{autoSkip:false}}},
+onClick:(evt,elements)=>{
+
+if(elements.length>0){
+
+const index=elements[0].index
+
+const seleccionado=ouLabels[index]
+
+filtroOU=(filtroOU===seleccionado)?null:seleccionado
+
+aplicarFiltros()
+
+}
+
+}
+}
+
+})
+
+
+const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1])
+
+const holdLabels=sortedHold.map(e=>e[0])
+const holdValues=sortedHold.map(e=>e[1])
+
+const altura2=holdLabels.length*35
+
+document.getElementById("holdChart").height=altura2
+
+if(holdChart) holdChart.destroy()
+
+holdChart=new Chart(document.getElementById("holdChart"),{
+
+type:"bar",
+
+data:{
+labels:holdLabels,
+datasets:[{
+data:holdValues,
+backgroundColor:"#6a11cb"
+}]
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{legend:{display:false}},
+scales:{y:{ticks:{autoSkip:false}}},
+onClick:(evt,elements)=>{
+
+if(elements.length>0){
+
+const index=elements[0].index
+
+const seleccionado=holdLabels[index]
+
+filtroHold=(filtroHold===seleccionado)?null:seleccionado
+
+aplicarFiltros()
+
+}
+
+}
 }
 
 })
 
 }
-
-cargarDatos()
 
 </script>
 
