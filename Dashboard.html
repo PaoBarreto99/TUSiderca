@@ -12,8 +12,6 @@
 body{font-family:Segoe UI;background:#f4f6fa;padding:20px}
 .container{max-width:1500px;margin:auto}
 .header{background:linear-gradient(135deg,#6a11cb,#2575fc);color:white;padding:25px;border-radius:12px;margin-bottom:25px;text-align:center;}
-.subtitulo{margin-top:10px;font-size:14px;opacity:0.95;line-height:1.6;}
-.subtitulo a{color:#ffffff;text-decoration:underline;font-weight:500;}
 .filters{background:white;padding:15px;border-radius:12px;margin-bottom:25px;display:flex;gap:15px;flex-wrap:wrap}
 .filters input,.filters select{padding:8px;border-radius:8px;border:1px solid #ccc}
 .filters button{padding:8px 15px;border:none;border-radius:8px;background:#6a11cb;color:white;cursor:pointer}
@@ -21,7 +19,6 @@ body{font-family:Segoe UI;background:#f4f6fa;padding:20px}
 .stat-card{color:white;padding:20px;border-radius:12px;text-align:center}
 .stat-card h3{margin:0}
 .stat-card .number{font-size:2em;font-weight:bold}
-.subtext{font-size:13px;margin-top:6px;opacity:0.9}
 .bg-purple{background:linear-gradient(135deg,#6a11cb,#2575fc);}
 .bg-red{background:linear-gradient(135deg,#cb2d3e,#ef473a);}
 .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px}
@@ -40,12 +37,10 @@ th,td{padding:8px;border-bottom:1px solid #eee;font-size:13px}
 
 <div class="header">
 <h1>Mínimos Requeridos VENCIDOS</h1>
-<p class="subtitulo">
-Actualizado hasta el 06-Mar
-</p>
 </div>
 
 <div class="filters">
+
 <input type="text" id="filtroNombre" placeholder="Nombre">
 <input type="text" id="filtroSAP" placeholder="SAP ID">
 
@@ -55,18 +50,20 @@ Actualizado hasta el 06-Mar
 
 <button onclick="resetTotal()">Reset</button>
 <button onclick="exportarExcel()">Exportar Excel</button>
+
 </div>
 
 <div class="stats-grid">
+
 <div class="stat-card bg-purple">
 <h3>CUMPLIMIENTO 93%</h3>
-<div class="subtext">Target: 100%</div>
 </div>
 
 <div class="stat-card bg-red">
 <h3>Requisitos vencidos</h3>
 <div class="number" id="pendientes">0</div>
 </div>
+
 </div>
 
 <div class="charts-grid">
@@ -87,15 +84,14 @@ Actualizado hasta el 06-Mar
 
 <thead>
 <tr>
-<th>Nombre</th>
 <th>SAP ID</th>
-<th>Certification Type</th>
-<th>Certificacion</th>
+<th>Nombre y Apellido</th>
+<th>Certificación</th>
 <th>Activity Type</th>
+<th>Supervisor</th>
 <th>OU 4</th>
 <th>Estado</th>
 <th>Comentarios</th>
-<th>Supervisor</th>
 </tr>
 </thead>
 
@@ -131,6 +127,7 @@ cargarOpciones()
 renderizar(datosGlobal)
 }
 })
+
 }
 
 function cargarOpciones(){
@@ -209,6 +206,7 @@ if(filtroOU){datos=datos.filter(d=>d["OU 4"]===filtroOU)}
 if(filtroHold){datos=datos.filter(d=>d.Comentarios===filtroHold)}
 
 renderizar(datos)
+
 }
 
 function resetTotal(){
@@ -249,15 +247,14 @@ if(estado==="Vencida")clase="estado-vencida"
 
 tbody.innerHTML+=`
 <tr>
-<td>${d.Nombre||""}</td>
 <td>${d["SAP ID"]||""}</td>
-<td>${d["Certification Type"]||""}</td>
+<td>${d.Nombre||""}</td>
 <td>${d.Certificacion||""}</td>
 <td>${d["Activity Type"]||""}</td>
+<td>${d.Supervisor||""}</td>
 <td>${d["OU 4"]||""}</td>
 <td class="${clase}">${estado}</td>
 <td>${d.Comentarios||""}</td>
-<td>${d.Supervisor||""}</td>
 </tr>
 `
 
@@ -266,13 +263,17 @@ tbody.innerHTML+=`
 document.getElementById("pendientes").textContent=ven
 
 crearGraficos(ouCount,holdCount)
+
 }
 
 function crearGraficos(ouCount,holdCount){
 
 const sortedOU=Object.entries(ouCount).sort((a,b)=>b[1]-a[1])
+
 const ouLabels=sortedOU.map(e=>e[0])
 const ouValues=sortedOU.map(e=>e[1])
+
+const colores=ouValues.map((v,i)=> i<3 ? "#ef473a" : "#f7971e")
 
 if(ouChart) ouChart.destroy()
 
@@ -282,7 +283,10 @@ type:"bar",
 
 data:{
 labels:ouLabels,
-datasets:[{data:ouValues}]
+datasets:[{
+data:ouValues,
+backgroundColor:colores
+}]
 },
 
 options:{
@@ -307,6 +311,7 @@ aplicarFiltros()
 })
 
 const sortedHold=Object.entries(holdCount).sort((a,b)=>b[1]-a[1])
+
 const holdLabels=sortedHold.map(e=>e[0])
 const holdValues=sortedHold.map(e=>e[1])
 
